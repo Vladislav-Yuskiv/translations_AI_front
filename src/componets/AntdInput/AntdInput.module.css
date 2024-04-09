@@ -1,0 +1,23 @@
+.labelWrapper{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 10px;
+}
+.label{
+    line-height: 24px;
+    font-size: 14px;
+    color: var(--primary-black);
+}
+.additionalText{
+    line-height: 24px;
+    font-size: 14px;
+    color: var(--black-300);
+}
+.antdInput:hover{
+    border-color: var(--main-background-color);
+}
+.antdInput:focus{
+    border-color: var(--main-background-color);
+}
