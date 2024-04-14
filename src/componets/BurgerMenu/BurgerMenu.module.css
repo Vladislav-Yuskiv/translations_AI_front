@@ -1,0 +1,42 @@
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 30px !important;
+}
+
+.headerLogoAndDropdown {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    margin-right: 20px;
+}
+
+.navWrapper {
+    position: fixed;
+    top: 64px; /* Adjust based on your header height */
+    left: 0;
+    width: 100%;
+    color: #fff;
+    padding: 30px;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navWrapper ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.closeButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+}
+.navIcon{
+    margin: 8px;
+}

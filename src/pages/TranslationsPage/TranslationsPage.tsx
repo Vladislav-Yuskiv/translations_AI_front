@@ -1,12 +1,10 @@
-import styles from "./HomePage.module.css"
 import HeaderWithContent from "../../componets/HeaderWithContent";
-export default function HomePage(){
+
+export default function TranslationsPage(){
 
     return(
         <HeaderWithContent>
-            <div>
-                Home
-            </div>
+            <div>Translations</div>
         </HeaderWithContent>
     )
 }

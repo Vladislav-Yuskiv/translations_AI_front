@@ -1,12 +1,24 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Navigate, Route, Routes} from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import PublicRoute from "./navigation/PublicRoute";
 import PrivateRoute from "./navigation/PrivateRoute";
 import RegistrationPage from "./pages/RegistrationPage";
+import {useDispatch} from "react-redux";
+import {currentUser} from "./redux/user/userSlice";
+import TranslationsPage from "./pages/TranslationsPage";
+import AccountPage from "./pages/AccountPage";
+import SettingsPage from "./pages/SettingsPage";
 
 function App() {
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+          dispatch(currentUser())
+  }, [dispatch]);
+
   return (
     <div className="App">
         <Routes>
@@ -21,7 +33,7 @@ function App() {
             <Route
                 path={"/login"}
                 element={
-                    <PublicRoute>
+                    <PublicRoute restricted redirectTo="/home">
                         <LoginPage/>
                     </PublicRoute>
                 }
@@ -29,7 +41,7 @@ function App() {
             <Route
                 path={"/registration"}
                 element={
-                    <PublicRoute>
+                    <PublicRoute restricted redirectTo="/home">
                         <RegistrationPage/>
                     </PublicRoute>
                 }
@@ -41,6 +53,30 @@ function App() {
                         <HomePage/>
                     </PrivateRoute>
             }
+            />
+            <Route
+                path={"/translations"}
+                element={
+                    <PrivateRoute>
+                       <TranslationsPage/>
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path={"/account"}
+                element={
+                    <PrivateRoute>
+                        <AccountPage/>
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path={"/app-settings"}
+                element={
+                    <PrivateRoute>
+                        <SettingsPage/>
+                    </PrivateRoute>
+                }
             />
             <Route
                 path="*"

@@ -1,0 +1,92 @@
+.navIcon{
+    margin: 8px;
+}
+.logoText{
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'Circe';
+    font-style: italic;
+    color: var(--primary-black);
+}
+.logoWrapper{
+    display: flex;
+    align-items: center;
+
+    margin-top: 17px;
+    margin-bottom: 30px;
+}
+.navVerticalIcon{
+    font-size: 24px;
+    padding: 11px 0;
+    margin-right: 20px;
+}
+.sider{
+    overflow: hidden;
+    border-right: 1px solid var(--black-100);
+}
+.siderInnerWrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+.triggerContainer{
+    margin-bottom: 30px;
+}
+.container{
+    padding: 0 20px;
+    background-color: var(--white-color);
+}
+.navWrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.navWrapper > *:not(:last-child) {
+    margin-right: 30px;
+}
+.selectWithIconContainer{
+    display: flex;
+    align-items: center;
+}
+.navVerticalWrapper{
+
+}
+
+.selectIconWrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 28px;
+    height: 28px;
+
+    background-color: var(--accent-text-color);
+    border-radius: 8px;
+    margin-right: 5px;
+}
+
+.selectIconWrapperText{
+    color: var(--primary-black);
+}
+
+.headerWrapper{
+    display: flex;
+    align-items: center;
+    background-color: var(--white-color);
+    border-bottom: 1px solid var(--black-100);
+}
+
+.contentWrapper{
+    background-color: var(--white-color);
+    padding: 24px 24px 0;
+}
+.footerWrapper{
+    text-align: center;
+    background-color: var(--white-color);
+}
+.helpWrap{
+    position: absolute;
+    z-index: 999;
+    right: 0;
+}
