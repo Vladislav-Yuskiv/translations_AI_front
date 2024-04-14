@@ -13,7 +13,7 @@ const config = {
     delay: 4000
 };
 
-function errorNotification(errorMessage:string) {
+export function errorNotification(errorMessage:string) {
     return error({
         ...config,
         title: 'Error',
@@ -21,7 +21,7 @@ function errorNotification(errorMessage:string) {
     });
 }
 
-export default function authErrorHandler(error:any, rejectWithValue:any) {
+export default function authErrorHandler(error:any) {
     const errorStatus = error?.response?.status || "Unknown";
 
     let errorMessage = '';
@@ -47,6 +47,7 @@ export default function authErrorHandler(error:any, rejectWithValue:any) {
             break;
     }
 
-    errorNotification(errorMessage);
-    return rejectWithValue(error.message);
+    console.log(errorMessage)
+
+    return  errorNotification(errorMessage);
 }

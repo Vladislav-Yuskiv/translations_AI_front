@@ -6,5 +6,7 @@
   --backdrop-color: rgba(0, 0, 0, 0.25);
   --primary-black: rgba(0,0,0,1);
   --black-300:  rgba(0,0,0,0.3);
+  --black-100:  rgba(0,0,0,0.1);
   --dropdown-color: rgba(255, 255, 255, 0.7);
+  --white-color: rgba(255, 255, 255);
 }

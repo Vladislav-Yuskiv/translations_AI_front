@@ -1,0 +1,16 @@
+.collapseText{
+    margin-left: 20px;
+    font-weight: 500;
+}
+.collapseIcon{
+    font-size: 24px;
+}
+.triggerWrapper{
+    padding: 10px 10px 10px 0;
+    color: var(--primary-black);
+    display: flex;
+    align-items: center;
+}
+.triggerWrapper:hover{
+    color: var(--main-background-color);
+}

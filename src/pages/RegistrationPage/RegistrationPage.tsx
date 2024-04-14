@@ -3,6 +3,10 @@ import logoImg from '../../images/logo.svg';
 import AntdInput from "../../componets/AntdInput";
 import {Form, Input, Select, SelectProps} from "antd";
 import AntdButton from "../../componets/AntdButton";
+import {useDispatch, useSelector} from "react-redux";
+import {register} from "../../redux/user/userSlice";
+import {ISignUpBody} from "../../types/interfaces";
+import {userSelectors} from "../../redux/user";
 
 type FieldType = {
     name?: string;
@@ -21,8 +25,24 @@ const options: SelectProps['options'] = [
 
 export default function RegistrationPage(){
 
+    const  dispatch = useDispatch();
+
+    const isLoading = useSelector(userSelectors.getUserIsLoading)
+
     function onSubmit(values:FieldType){
-        console.log('values',values)
+        try {
+            if(!values.name ||  !values.email || !values.password) return
+
+            const body: ISignUpBody = {
+                name: values.name,
+                email: values.email,
+                password: values.password
+            }
+
+            dispatch(register(body))
+        }catch (e) {
+            console.log("Error in onSubmit",e)
+        }
     }
 
     return(
@@ -104,7 +124,7 @@ export default function RegistrationPage(){
                                 />
                             }
                             placeholder={"Choose an option"}
-                            rightText={"Required"}
+                            rightText={""}
                         />
                     </Form.Item>
 
@@ -115,6 +135,8 @@ export default function RegistrationPage(){
                             htmlType={"submit"}
                             onPress={() => null}
                             className={styles.submitBtn}
+                            loading={isLoading}
+                            disabled={isLoading}
                         />
 
                         <span className={styles.termsText}>
