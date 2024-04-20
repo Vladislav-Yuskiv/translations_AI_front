@@ -39,15 +39,10 @@ export default function authErrorHandler(error:any) {
         case ERROR_STATUS.UNAUTHORIZED:
             errorMessage = 'Your email or password is incorrect. Please check your inputs and try again, or log in again.';
             break;
-        case ERROR_STATUS.BAD_REQUEST:
-            errorMessage = 'Your input values are incorrect. Please check them and try again.';
-            break;
         default:
-            errorMessage = 'An unknown error occurred. Please try again later.';
             break;
     }
 
-    console.log(errorMessage)
 
     return  errorNotification(errorMessage);
 }

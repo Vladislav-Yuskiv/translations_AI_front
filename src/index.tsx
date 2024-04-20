@@ -2,12 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import {Provider} from "react-redux";
-import {persistor, store} from "./redux/store";
-import Loader from "./componets/Loader";
-import {PersistGate} from "redux-persist/integration/react";
-import {BrowserRouter} from "react-router-dom";
+import { store} from "./redux/store";
 import './index.css';
-
 import { defaultModules } from '@pnotify/core';
 import '@pnotify/core/dist/PNotify.css';
 import * as PNotifyMobile from '@pnotify/mobile';
@@ -24,11 +20,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
       <Provider store={store}>
-          <PersistGate loading={<Loader />} persistor={persistor}>
-              <BrowserRouter>
-                  <App />
-              </BrowserRouter>
-          </PersistGate>
+            <App />
       </Provider>
   </React.StrictMode>
 );

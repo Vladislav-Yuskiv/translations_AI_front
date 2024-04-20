@@ -16,12 +16,14 @@ header {
 }
 
 .navWrapper {
+    background-color: white;
     position: fixed;
     top: 64px; /* Adjust based on your header height */
     left: 0;
     width: 100%;
     color: #fff;
     padding: 30px;
+    z-index: 999;
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
 }
 

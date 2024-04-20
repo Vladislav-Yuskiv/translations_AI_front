@@ -75,10 +75,7 @@ function Sidebar({ children }:{children?:ReactNode}) {
                             <div className={styles.selectIconWrapper}>
                                 <span className={styles.selectIconWrapperText}>{"Company".charAt(0)}</span>
                             </div>
-                            <SelectCompany
-                                currentCompany={"Company1"}
-                                availableCompanies={['Company1','Company2']}
-                            />
+                            <SelectCompany/>
                         </div>
 
 
@@ -86,7 +83,7 @@ function Sidebar({ children }:{children?:ReactNode}) {
 
                         <div style={{position:"relative"}}>
                             <div onClick={() => setHelpOpen(!isHelpedOpen)}>
-                                <p>Help</p>
+                                <p style={{ color: isHelpedOpen ? "rgba(103, 32, 255)" :"#000000"}}>Help</p>
                             </div>
 
                             {

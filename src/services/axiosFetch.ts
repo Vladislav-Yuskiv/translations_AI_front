@@ -33,7 +33,9 @@ export async function axiosFetchWithTokenRefresh<T>({
             if (axiosError.response?.status === 401) {
                 console.log("Access denied, try to refresh token")
                 try {
-                    const refreshedTokenResponse = await axios.post<ITokens>('/refresh');
+                    const refreshToken = await customLocalStorage("refreshToken","get")
+                    const refreshedTokenResponse = await axios.post<ITokens>('auth/refresh',{refreshToken});
+
                     const newAccessToken = refreshedTokenResponse.data.accessToken;
                     const newRefreshToken = refreshedTokenResponse.data.refreshToken;
 

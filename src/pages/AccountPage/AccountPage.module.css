@@ -1,0 +1,77 @@
+.blockWrapper{
+    padding: 16px 0;
+    margin: 20px auto;
+    border-top: 1px solid rgba(17, 17, 17, .11);
+}
+
+.inputsWrapper{
+    /*width: 400px;*/
+    /*margin-left: 50px;*/
+}
+
+.inputsWrapper > div {
+    margin: 15px 0;
+}
+
+.changeText{
+    color: var(--main-background-color);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 24px;
+
+    margin-top: 20px;
+    padding: 10px 10px;
+}
+
+.wrapper{
+
+}
+.footerModalBtn{
+    background-color: var(--main-background-color);
+    border-color: transparent;
+}
+
+.footerModalBtn:hover{
+    border-color: transparent !important;
+    background-color: var(--main-background-color) !important;
+    opacity: 0.8;
+}
+.hoverFocusInput:hover{
+    border-color: var(--main-background-color) !important;
+}
+.hoverFocusInput:focus{
+    border-color: var(--main-background-color) !important;
+}
+.errorText{
+    color: red;
+    margin-top: 2px;
+    font-size: 14px;
+    line-height: 18px;
+}
+
+.logOutBtn{
+
+}
+.logOutBtn:hover{
+    border-color: var(--main-background-color) !important;
+    color:var(--main-background-color) !important;
+}
+.logOutBtn:focus{
+    border-color: var(--main-background-color) !important;
+    color:var(--main-background-color) !important;
+}
+
+@media screen and (min-width: 768px) {
+    .blockWrapper{
+        display: flex;
+        justify-content: center;
+        width: 800px;
+    }
+    .inputsWrapper{
+        width: 400px;
+        margin-left: 50px;
+    }
+    .logOutBtn{
+        width: 500px
+    }
+}
