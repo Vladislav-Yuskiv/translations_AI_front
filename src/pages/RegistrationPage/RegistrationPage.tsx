@@ -9,7 +9,7 @@ import {ISignUpBody} from "../../types/interfaces";
 import {userSelectors} from "../../redux/user";
 
 type FieldType = {
-    name?: string;
+    name: string;
     email?: string;
     password?:string;
     howHear?: string;
@@ -24,6 +24,7 @@ const options: SelectProps['options'] = [
 ];
 
 export default function RegistrationPage(){
+    document.title = "Translatic | Register";
 
     const  dispatch = useDispatch();
 
@@ -40,6 +41,7 @@ export default function RegistrationPage(){
             }
 
             dispatch(register(body))
+
         }catch (e) {
             console.log("Error in onSubmit",e)
         }
@@ -75,7 +77,7 @@ export default function RegistrationPage(){
                         rules={[{required: true, message: 'Required field'}]}
                     >
                         <AntdInput
-                            label={"Email"}
+                            label={"Name"}
                             value={""}
                             size={"large"}
                             placeholder={"Enter your name"}

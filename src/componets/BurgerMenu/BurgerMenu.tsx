@@ -30,10 +30,7 @@ export default function BurgerMenu({children }:{children?:ReactNode}){
                         width="40"
                         height="40"
                     />
-                    <SelectCompany
-                        currentCompany={"Company1"}
-                        availableCompanies={['Company1','Company2']}
-                    />
+                    <SelectCompany/>
                 </div>
 
                 {
@@ -49,14 +46,13 @@ export default function BurgerMenu({children }:{children?:ReactNode}){
                                 <NavLinkItem to={"/translations"} Icon={<SwapOutlined className={styles.navIcon} />} text={"Translations"}/>
                                 <NavLinkItem to={"/account"} Icon={<UserOutlined className={styles.navIcon} />} text={"Account"}/>
                                 <NavLinkItem to={"/app-settings"} Icon={<SettingOutlined className={styles.navIcon} />} text={"App Settings"}/>
-                                <NavLinkItem to={"/help"} Icon={<MessageOutlined className={styles.navIcon} />} text={"Help"}/>
                             </ul>
                         </nav>
                     )
                 }
 
             </Header>
-            <Content  style={{ backgroundColor:"#ffffff"}}>
+            <Content  style={{ backgroundColor:"#ffffff", padding: 20}}>
                 {children}
             </Content>
         </Layout>

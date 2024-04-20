@@ -22,3 +22,6 @@
     color: var(--black-300);
     margin-left: 4px;
 }
+.select > .ant-select-selector{
+    border: none !important;
+}

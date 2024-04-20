@@ -3,15 +3,24 @@ import logoImgPath from '../../images/logo.svg';
 import AntdInput from "../../componets/AntdInput";
 import { Form, Input} from "antd";
 import AntdButton from "../../componets/AntdButton";
+import {useDispatch} from "react-redux";
+import {login} from "../../redux/user/userSlice";
 
 type FieldType = {
     email?: string;
     password?: string;
 };
 export default function LoginPage(){
+    document.title = "Translatic | Login";
 
+    const dispatch = useDispatch()
     function onSubmit(values:FieldType){
         console.log('values',values)
+        if(!values.password || !values.email){
+            window.alert("Something went wrong")
+            return
+        }
+        dispatch(login({email: values.email, password: values.password}))
     }
 
     return(
