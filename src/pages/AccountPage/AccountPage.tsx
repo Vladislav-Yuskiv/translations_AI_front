@@ -10,6 +10,7 @@ import {Button, Input, Modal, Popconfirm} from "antd";
 import AntdButton from "../../componets/AntdButton";
 import {changePassword, logOut, setShowUnsaved, updateUser} from "../../redux/user/userSlice";
 import Unsaved from "../../componets/Unsaved";
+import AreYouSureModal from "../../componets/Modals/AreYouSureModal";
 
 export default function AccountPage(){
     document.title = "Translatic | Account";
@@ -29,7 +30,7 @@ export default function AccountPage(){
     const [confirmPassword, setConfirmPassword] = useState( "");
     const [hasChangePasswordError, setChangePasswordError] = useState( false);
     const [loading, setLoading] = useState(false)
-
+    const [sureModal, setSureModal] = useState(false)
 
     useEffect(() => {
         if(userEmail === email && userName === name && showUnsaved){
@@ -64,6 +65,7 @@ export default function AccountPage(){
 
     function handleLogOut(){
         dispatch(logOut())
+        setSureModal(false)
     }
 
     const renderUnSaved = useCallback(() => {
@@ -134,17 +136,9 @@ export default function AccountPage(){
 
                 </div>
                 <div className={styles.blockWrapper}>
-                    <Popconfirm
-                        title="Are you sure?"
-                        onConfirm={handleLogOut}
-                        okText="Yes"
-                        cancelText="No"
-                    >
-                        <Button className={styles.logOutBtn}>
+                        <Button className={styles.logOutBtn} onClick={() => setSureModal(true)}>
                             Log out
                         </Button>
-                    </Popconfirm>
-
                 </div>
                 {renderUnSaved()}
             </div>
@@ -199,6 +193,15 @@ export default function AccountPage(){
                 }
 
             </Modal>
+
+            {
+                <AreYouSureModal
+                    isOpen={sureModal}
+                    onSubmit={handleLogOut}
+                    title={"Are you sure?"}
+                    onClose={() => setSureModal(false)}
+                />
+            }
         </HeaderWithContent>
     )
 }

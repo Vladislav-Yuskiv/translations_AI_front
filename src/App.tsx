@@ -20,6 +20,9 @@ import AccountPage from "./pages/AccountPage";
 import SettingsPage from "./pages/SettingsPage";
 import userSelectors from "./redux/user/userSelectors";
 import Loader from "./componets/Loader";
+import CreateBundleModal from "./componets/Modals/CreateBundleModal";
+import {bundlesSelectors} from "./redux/bundles";
+import {createBundle, setModalCreate} from "./redux/bundles/bundleSlice";
 
 
 let router = createBrowserRouter(
@@ -95,6 +98,7 @@ function App() {
   const refreshLoading = useSelector(userSelectors.getRefreshLoading)
   const loginLoading = useSelector(userSelectors.getLoginLoading)
   const showUnsaved = useSelector(userSelectors.getShowUnsaved)
+  const isModalCreate = useSelector(bundlesSelectors.getModalCreate)  ;
 
   useEffect(() => {
           dispatch(currentUser())
@@ -125,6 +129,11 @@ function App() {
             )
         }
 
+        <CreateBundleModal
+            isOpen={isModalCreate}
+            onClose={() => dispatch(setModalCreate(false))}
+            onSubmit={async (payload) =>  dispatch(createBundle(payload))}
+        />
     </div>
   );
 }

@@ -2,8 +2,8 @@ import {authErrorHandler, authSuccessNotification} from "../../utils";
 import {Dispatch} from "react";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {
-    IAxiosFetchWithTokenRefresh, IBundle,
-    IBundlesState, IBundleUsersResponse, IDefaultResponse, IUpdateBundleResponse,
+    IAxiosFetchWithTokenRefresh, IBundle, IBundleCreateBody, IBundleCreateResponse,
+    IBundlesState, IBundleUsersResponse, IDefaultResponse, IDeleteUserFromBundleResponse, IUpdateBundleResponse, IUser,
 } from "../../types/interfaces";
 import {axiosFetchWithTokenRefresh} from "../../services/axiosFetch";
 import {setShowUnsaved} from "../user/userSlice";
@@ -13,6 +13,8 @@ const initialState:IBundlesState = {
     availableBundles: [],
     bundleUsersLoading: false,
     currentBundleUsers: [],
+    modalCreate:false,
+    creatingLoading:false,
     loading: false,
     updateBundleLoading:false,
     deleteLoading: false,
@@ -35,6 +37,12 @@ export const bundleSlice = createSlice({
         setLoading: (state, action: PayloadAction<boolean>) => {
             state.loading = action.payload;
         },
+        setModalCreate: (state, action: PayloadAction<boolean>) => {
+            state.modalCreate = action.payload;
+        },
+        setCreatingLoading: (state, action: PayloadAction<boolean>) => {
+            state.creatingLoading = action.payload;
+        },
         setDeleteLoading: (state, action: PayloadAction<boolean>) => {
             state.deleteLoading = action.payload;
         },
@@ -55,7 +63,9 @@ export const {
     setUpdateBundleLoading,
     setDeleteLoading,
     setCurrentBundleUsers,
-    setBundleUsersLoading
+    setBundleUsersLoading,
+    setModalCreate,
+    setCreatingLoading
 } = bundleSlice.actions;
 
 export const getBundles = ():any => async (dispatch: Dispatch<any>) => {
@@ -75,6 +85,35 @@ export const getBundles = ():any => async (dispatch: Dispatch<any>) => {
 
     } catch (error) {
         dispatch(setLoading(false))
+        return authErrorHandler(error);
+    }
+}
+
+export const createBundle = (payload: IBundleCreateBody):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setCreatingLoading(true))
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "post",
+            url: `/bundles`,
+            data: {
+                 ...payload
+            }
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<IBundleCreateResponse>(config);
+
+        const availableBundles:IBundle[] =  getState().bundles.availableBundles;
+
+
+        await dispatch(setCurrentBundle(result.bundle))
+        await dispatch(setAvailableBundles([ result.bundle, ...availableBundles]))
+
+        authSuccessNotification(result.message);
+        dispatch(setCreatingLoading(false))
+        dispatch(setModalCreate(false))
+
+    } catch (error) {
+        dispatch(setCreatingLoading(false))
         return authErrorHandler(error);
     }
 }
@@ -143,7 +182,7 @@ export const deleteBundleById = (bundleId:string):any => async (dispatch: Dispat
 
         const config: IAxiosFetchWithTokenRefresh = {
             method: "delete",
-            url: `/bundles${bundleId}`,
+            url: `/bundles/${bundleId}`,
         }
 
         const result = await  axiosFetchWithTokenRefresh<IDefaultResponse>(config);
@@ -154,6 +193,34 @@ export const deleteBundleById = (bundleId:string):any => async (dispatch: Dispat
 
         await dispatch(setCurrentBundle(filteredBundles[0]))
         await dispatch(setAvailableBundles([...filteredBundles]))
+        dispatch(setDeleteLoading(false))
+
+        authSuccessNotification(result.message);
+
+    } catch (error) {
+        dispatch(setDeleteLoading(false))
+        return authErrorHandler(error);
+    }
+}
+
+export const deleteUserInBundleById = (bundleId:string,userId:string):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setDeleteLoading(true))
+
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "delete",
+            url: `/bundles/${bundleId}/${userId}/true`,
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<IDeleteUserFromBundleResponse>(config);
+
+        const currentBundleUsers:IUser[] =  getState().bundles.currentBundleUsers;
+
+        //@ts-ignore
+        const filteredUsers = currentBundleUsers.filter(user =>  user._id !== result.userId)
+
+        await dispatch(setCurrentBundleUsers(filteredUsers))
+
         dispatch(setDeleteLoading(false))
 
         authSuccessNotification(result.message);

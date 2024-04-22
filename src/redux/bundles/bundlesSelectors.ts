@@ -14,6 +14,10 @@ const getBundleUsersLoading = (state:IRootState) => state.bundles.bundleUsersLoa
 
 const getCurrentBundleUsers = (state:IRootState) => state.bundles.currentBundleUsers;
 
+const getModalCreate = (state:IRootState) => state.bundles.modalCreate;
+
+const getCreatingLoading = (state:IRootState) => state.bundles.creatingLoading;
+
 const bundlesSelectors = {
     getAvailable,
     getLoading,
@@ -21,7 +25,9 @@ const bundlesSelectors = {
     getUpdateBundleLoading,
     getDeleteLoading,
     getBundleUsersLoading,
-    getCurrentBundleUsers
+    getCurrentBundleUsers,
+    getModalCreate,
+    getCreatingLoading
 };
 
 export default bundlesSelectors;

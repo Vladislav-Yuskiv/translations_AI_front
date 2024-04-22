@@ -1,8 +1,8 @@
 import HeaderWithContent from "../../componets/HeaderWithContent";
 import {HeaderPage, SubTitlePage} from "../../componets/StyledComponents";
-import {CopyOutlined, InboxOutlined, CheckCircleFilled} from '@ant-design/icons';
+import {CopyOutlined, InboxOutlined, CheckCircleFilled, PlusCircleFilled} from '@ant-design/icons';
 import styles from "./SettingsPage.module.css";
-import {Button, Input, Popconfirm, Select, SelectProps, Table, TableColumnsType, Tooltip} from "antd";
+import {Button, Input, Select, SelectProps, Table, TableColumnsType, Tooltip} from "antd";
 import AntdInput from "../../componets/AntdInput";
 import {useCallback, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
@@ -11,12 +11,18 @@ import Loader from "../../componets/Loader";
 import type { UploadProps } from 'antd';
 import { message, Upload } from 'antd';
 import AntdButton from "../../componets/AntdButton";
-import {deleteBundleById, getUsersByBundleId, updateCurrentBundle} from "../../redux/bundles/bundleSlice";
+import {
+    deleteBundleById,
+    deleteUserInBundleById,
+    getUsersByBundleId,
+    updateCurrentBundle
+} from "../../redux/bundles/bundleSlice";
 import {setShowUnsaved} from "../../redux/user/userSlice";
 import Unsaved from "../../componets/Unsaved";
 import userSelectors from "../../redux/user/userSelectors";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import Column from "antd/es/table/Column";
+import {useMediaQuery} from "@mui/material";
+import AreYouSureModal from "../../componets/Modals/AreYouSureModal";
 
 const { Dragger } = Upload;
 
@@ -29,18 +35,12 @@ const categoryOptions: SelectProps['options'] = [
 ];
 
 const { TextArea } = Input;
-
-interface DataType {
-    key: React.Key;
-    _id: string;
-    name: string;
-    email: string;
-    role: string;
-}
-
-
 export default function SettingsPage(){
     document.title = "Translatic | Settings";
+
+    const isAtLeastTable = useMediaQuery('(min-width:768px)');
+
+    const currentUserEmail = useSelector(userSelectors.getUserEmail)
 
     const dispatch = useDispatch();
     const bundlesLoading = useSelector(bundlesSelectors.getLoading)
@@ -57,8 +57,10 @@ export default function SettingsPage(){
     const [bundleCategory, setBundleCategory] = useState(currentBundle?.category ||  "Business")
 
     const [tableData, setTableData] = useState<any[]>([])
-
+    const [sureModal, setSureModal] = useState<"bundleDelete" | "userDelete" | null>(null)
     const [isAPICopy, setAPICopy] = useState(false);
+    const [userToDelete, setUserToDelete] = useState("");
+    const [isUsersLimitResearch, setUsersLimitResearch] = useState(false);
 
     useEffect(() => {
         if(
@@ -81,9 +83,9 @@ export default function SettingsPage(){
     useEffect(() => {
         if(usersByBundleId && usersByBundleId.length === 0) return
 
-        const filteredTableData = usersByBundleId.map(user => {
+        const filteredTableData = usersByBundleId.map((user, index) => {
             return {
-                key: user.id,
+                key: user._id,
                 name: user.name,
                 email: user.email,
                 role: "Admin",
@@ -93,6 +95,7 @@ export default function SettingsPage(){
         setTableData(filteredTableData)
     }, [usersByBundleId]);
     async function handleDeleteBundle(){
+        setSureModal(null)
         if(availableBundles.length === 1){
             return window.alert("You need to have at least one translation bundle")
         }
@@ -103,6 +106,14 @@ export default function SettingsPage(){
 
         dispatch(deleteBundleById(currentBundle._id))
     }
+
+    function handleDeleteUser(userId: string){
+        if(!currentBundle?._id) return
+        setSureModal(null)
+        dispatch(deleteUserInBundleById(currentBundle._id,userId))
+        setUserToDelete("")
+    }
+
 
     async function handleSaveChanges() {
         try{
@@ -196,10 +207,42 @@ export default function SettingsPage(){
             title: 'Action',
             dataIndex: '',
             key: 'x',
-            render: () => <a>Delete</a>,
+            render: (user) => {
+                if(user.email !== currentUserEmail){
+                    return (
+                        <AntdButton
+                            btnTitle={'Delete'}
+                            onPress={() => {
+                                setUserToDelete(user.key)
+                                setSureModal("userDelete")
+                            }}
+                            style={{
+                                color: "white"
+                            }}
+                            className={styles.btnUserDelete}
+                            disabled={deleteLoading}
+                            loading={deleteLoading}
+                         />
+                    )
+                }else{
+                    return  ""
+                }
+
+            }
         },
     ];
 
+    function addNewMemberToBundle() {
+        if(usersByBundleId.length >= 3){
+            setUsersLimitResearch(true)
+
+            setTimeout(() => {
+                setUsersLimitResearch(false)
+            },2000)
+        }
+
+        console.log('addNewMemberToBundle')
+    }
 
     return(
         <HeaderWithContent>
@@ -285,12 +328,68 @@ export default function SettingsPage(){
                                    <SubTitlePage>Members</SubTitlePage>
 
                                    <div className={styles.inputsWrapper}>
-                                       <Table
-                                           dataSource={tableData}
-                                           pagination={false}
-                                           columns={columns}
-                                           loading={bundleUsersLoading}
-                                       />
+                                       {
+                                           isAtLeastTable
+                                                    ? (
+                                                       <Table
+                                                           dataSource={tableData}
+                                                           pagination={false}
+                                                           columns={columns}
+                                                           loading={bundleUsersLoading}
+                                                       />
+                                                    )
+                                                    : (
+                                                        <div>
+                                                            {
+                                                                tableData.map(user => {
+                                                                    return (
+                                                                        <div key={user.key} className={styles.tableMobileWrapper}>
+                                                                            <p className={styles.tableMobileTitle}>Name:
+                                                                                <span className={styles.tableValueAccent}>{user.name}</span>
+                                                                            </p>
+                                                                            <p className={styles.tableMobileTitle}>E-email:
+                                                                                <span className={styles.tableValueAccent}>{user.email}</span>
+                                                                            </p>
+                                                                            <p className={styles.tableMobileTitle}>Role:
+                                                                                <span className={styles.tableValueAccent}>{user.role}</span>
+                                                                            </p>
+                                                                            {
+                                                                                user.email !== currentUserEmail && (
+                                                                                    <AntdButton
+                                                                                        btnTitle={"Delete"}
+                                                                                        onPress={() => {
+                                                                                            setUserToDelete(user.key)
+                                                                                            setSureModal("userDelete")
+                                                                                        }}
+                                                                                        className={styles.btnUserDelete}
+                                                                                        style={{
+                                                                                            color:"white"
+                                                                                        }}
+                                                                                    />
+                                                                                )
+                                                                            }
+                                                                        </div>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </div>
+                                                    )
+                                       }
+
+                                       <Tooltip open={isUsersLimitResearch} placement="bottom" title={"In beta you can add only 3 users"}>
+                                           <Button
+                                               className={styles.addMemberButton}
+                                               type="text"
+                                               icon={
+                                                   <PlusCircleFilled
+                                                       className={styles.plusIcon}
+                                                   />
+                                               }
+                                               onClick={addNewMemberToBundle}
+                                           >
+                                               Add member
+                                           </Button>
+                                       </Tooltip>
                                    </div>
                                </div>
 
@@ -334,21 +433,14 @@ export default function SettingsPage(){
                                </div>
 
                                <div className={styles.blockWrapper}>
-                                   <Popconfirm
-                                       title="Are you sure?"
-                                       onConfirm={handleDeleteBundle}
-                                       okText="Yes"
-                                       cancelText="No"
-                                   >
                                        <Button
                                            className={styles.deleteBtn}
                                            disabled={deleteLoading}
                                            loading={deleteLoading}
+                                           onClick={() => setSureModal('bundleDelete')}
                                        >
                                            Delete translation bundle
                                        </Button>
-                                   </Popconfirm>
-
                                </div>
 
                                {renderUnSaved()}
@@ -356,6 +448,18 @@ export default function SettingsPage(){
                     )
                 }
             </div>
+
+            {
+                <AreYouSureModal
+                    isOpen={Boolean(sureModal)}
+                    onSubmit={sureModal === "bundleDelete" ? handleDeleteBundle : () => handleDeleteUser(userToDelete)}
+                    title={"Are you sure?"}
+                    onClose={() =>{
+                        setUserToDelete("")
+                        setSureModal(null)
+                    }}
+                />
+            }
 
         </HeaderWithContent>
     )

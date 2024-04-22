@@ -68,6 +68,42 @@
     justify-content: space-between;
     align-items: center;
 }
+
+.tableMobileWrapper{
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px -4px #0000001f, 0 4px 13px #00000014, 0 3px 20px 4px #0000000d;
+    margin-bottom: 15px;
+}
+.tableMobileTitle{
+    margin: 10px 0;
+}
+.tableValueAccent{
+    font-weight: bold;
+    margin-left: 4px;
+}
+.plusIcon{
+    font-size: 24px;
+    color: var(--main-background-color);
+}
+.addMemberButton{
+    display: flex;
+    font-weight: bold;
+}
+.addMemberButton:hover{
+    background-color: transparent!important;
+}
+.btnUserDelete{
+    background-color: var(--main-background-color)!important;
+}
+.btnUserDelete:hover{
+    border-color: var(--main-background-color)!important;
+    background-color: var(--main-background-color)!important;
+    opacity: 0.8;
+}
 @media screen and (min-width: 768px) {
     .blockWrapper{
         display: flex;

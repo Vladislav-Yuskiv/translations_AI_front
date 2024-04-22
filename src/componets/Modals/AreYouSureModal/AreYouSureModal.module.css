@@ -1,0 +1,12 @@
+.okBtn{
+    background-color: var(--main-background-color);
+}
+.okBtn:hover{
+    background-color: var(--main-background-color) !important;
+    opacity: 0.8;
+}
+
+.cancelBtn:hover{
+    color: var(--main-background-color) !important;
+    border-color: var(--main-background-color) !important;;
+}

@@ -1,21 +1,22 @@
 import styles from "./SelectCompany.module.css"
-import {useEffect, useRef, useState} from "react";
-import { PlusCircleFilled ,DownOutlined ,UpOutlined,LoadingOutlined} from '@ant-design/icons';
-import {Button, Divider, InputRef, Select, Space} from "antd";
+import {useEffect, useState} from "react";
+import { PlusCircleFilled ,DownOutlined ,UpOutlined,LoadingOutlined,CheckOutlined} from '@ant-design/icons';
+import {Button, Divider, Select, Space} from "antd";
 import {useMediaQuery} from "@mui/material";
 import {IBundle} from "../../types/interfaces";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import bundlesSelectors from "../../redux/bundles/bundlesSelectors";
+import {setCurrentBundle, setModalCreate} from "../../redux/bundles/bundleSlice";
 
 export default function SelectCompany(){
 
+    const dispatch = useDispatch();
     const bundlesLoading = useSelector(bundlesSelectors.getLoading)
     const currentBundle = useSelector(bundlesSelectors.getCurrentBundle)
     const availableCompanies = useSelector(bundlesSelectors.getAvailable)
 
     const [isOpen, setIsOpen] = useState(false);
     const [items, setItems] = useState<IBundle[]>(availableCompanies);
-    const inputRef = useRef<InputRef>(null);
 
     const isAtLeastTable = useMediaQuery('(min-width:768px)');
 
@@ -26,13 +27,16 @@ export default function SelectCompany(){
     const addItem = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         e.preventDefault();
 
-        setTimeout(() => {
-            inputRef.current?.focus();
-        }, 0);
+        dispatch(setModalCreate(true))
     };
     
     function onSelect(value: string) {
-        console.log("Selected value",value)
+        const foundBundle = availableCompanies.find(bundle => bundle._id === value)
+
+        if(foundBundle){
+            dispatch(setCurrentBundle(foundBundle))
+        }
+
     }
 
     return (
@@ -79,6 +83,14 @@ export default function SelectCompany(){
                 return(
                     <div className={styles.labelWrapper}>
                         <span className={styles.label}>{option.label}</span>
+                        {
+                            option.value === currentBundle?._id && (
+                                <CheckOutlined style={{
+                                    marginLeft: 15,
+                                    fontWeight:'bold'
+                                }} />
+                            )
+                        }
                     </div>
                 )
             }}

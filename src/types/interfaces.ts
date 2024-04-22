@@ -2,6 +2,7 @@ import {AxiosRequestConfig, Method} from "axios";
 
 export interface IUser{
     id:string
+    _id?: string
     name: string
     email: string
     access_level: string
@@ -17,6 +18,13 @@ export interface IChangePasswordResponse{
 
 export interface IDefaultResponse{
     message: string
+}
+
+export interface IBundleCreateResponse extends IDefaultResponse{
+    bundle: IBundle
+}
+export interface IDeleteUserFromBundleResponse extends IDefaultResponse{
+    userId: string
 }
 export interface IUpdateUserResponse{
     message: string,
@@ -47,6 +55,11 @@ export interface ISignUpBody{
     password: string
 }
 
+export interface IBundleCreateBody{
+    name:string,
+    description: string
+    category: string
+}
 export interface IChangePasswordBody{
     email:string,
     newPassword: string
@@ -85,6 +98,8 @@ export interface ISessionState {
 export interface IBundlesState {
    availableBundles: IBundle[]
    currentBundle: IBundle | null
+   modalCreate: boolean
+   creatingLoading: boolean
    bundleUsersLoading: boolean
    updateBundleLoading: boolean
    deleteLoading: boolean
