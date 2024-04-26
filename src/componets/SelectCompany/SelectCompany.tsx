@@ -27,6 +27,11 @@ export default function SelectCompany(){
     const addItem = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         e.preventDefault();
 
+        if(items.length >= 3 ){
+
+            return window.alert('You can create only 3 bundles in beta version')
+        }
+
         dispatch(setModalCreate(true))
     };
     
@@ -43,7 +48,7 @@ export default function SelectCompany(){
         <Select
             style={{ width: "auto"}}
             placeholder="Select bundle"
-            bordered={false}
+            variant={"borderless"}
             open={isOpen}
             onClick={() => setIsOpen(!isOpen)}
             dropdownStyle={{

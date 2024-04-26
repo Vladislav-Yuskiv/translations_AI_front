@@ -18,6 +18,8 @@ const getModalCreate = (state:IRootState) => state.bundles.modalCreate;
 
 const getCreatingLoading = (state:IRootState) => state.bundles.creatingLoading;
 
+const getBundleAlert = (state:IRootState) => state.bundles.isWarningAlert;
+
 const bundlesSelectors = {
     getAvailable,
     getLoading,
@@ -27,7 +29,8 @@ const bundlesSelectors = {
     getBundleUsersLoading,
     getCurrentBundleUsers,
     getModalCreate,
-    getCreatingLoading
+    getCreatingLoading,
+    getBundleAlert
 };
 
 export default bundlesSelectors;

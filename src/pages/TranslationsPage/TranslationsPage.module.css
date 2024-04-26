@@ -1,3 +1,25 @@
+.titleWithWarn{
+    display: flex;
+    align-items: center;
+}
+.warningWrapper{
+    width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--white-color);
+    opacity: 0.8;
+    padding:10px;
+    border-radius: 8px;
+    background-color: #e70000;
+
+    margin-left: 10px;
+}
+.warnText{
+    font-size: 16px;
+    margin-left: 10px;
+    font-style: italic;
+}
 .langWrap{
     display: flex;
     justify-content: center;
@@ -37,7 +59,7 @@
     margin-left: 4px;
 }
 
-.selecteWrapper{
+.selectWrapper{
     background-color: var(--white-color);
     border-color: var(--main-background-color);
     border-width: 1px;
@@ -46,7 +68,7 @@
     padding: 10px;
     display: flex;
     align-items: center;
-    width: 250px;
+    width: 270px;
     height: 50px;
     box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
 }
@@ -54,10 +76,25 @@
     display: flex;
     align-items: center;
     flex-direction: row;
-    justify-content: right;
-
-    margin: 20px 0;
+    margin: 30px 0 20px 0;
 }
+.actionBtn{
+    color: var(--white-color);
+    background-color: var(--main-background-color);
+}
+.actionBtn:hover{
+    opacity: 0.8;
+    background-color: var(--main-background-color)!important;
+    border-color: var(--main-background-color)!important;
+}
+.rootTable{
+    width: 100%;
+    overflow: scroll;
+}
+.actionsContainer *:not(:first-child){
+    margin-left: 20px;
+}
+
 .labelWrapper{
     padding: 4px;
 }
@@ -66,6 +103,25 @@
     font-weight: 500;
 }
 
+.searchAndSelectWrapper{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+.searchRoot{
+    max-width: 450px;
+    width: 40%;
+    min-width: 150px;
+}
+.addKey{
+    color:var(--primary-black);
+    padding: 0 25px;
+}
+.addKey:hover{
+    color: var(--main-background-color)!important;
+    border-color: var(--main-background-color)!important;
+}
 .valueWrapper{
     display: flex;
     flex-direction: row;
@@ -76,6 +132,22 @@
 .selectedWrapperText{
     font-size: 14px;
     font-weight: bold;
+}
+.actionColumnWrapper{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.actionColumnIconWrap{
+
+}
+.actionColumnIcon{
+   font-size: 22px;
+    padding: 7px;
+}
+.actionColumnIcon:hover{
+    color: var(--main-background-color);
 }
 @media screen and (min-width: 768px) {
     .wrapper{

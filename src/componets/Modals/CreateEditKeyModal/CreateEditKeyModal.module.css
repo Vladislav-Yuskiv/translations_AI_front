@@ -1,0 +1,35 @@
+.root > div > div {
+    padding: 0!important;
+}
+.footerWrapper{
+    background-color: white;
+    padding: 16px 24px !important;
+    box-shadow: 0 0 18px #01003026;
+    transition: opacity .3s ease;
+    display: flex;
+    justify-content: left;
+}
+.footerBtn{
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 24px;
+    height: 40px;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    outline: none;
+    transition: all .3s ease;
+    background-color: var(--main-background-color);
+}
+.footerBtn:hover{
+    background-color: var(--main-background-color) !important;
+    border-color: var(--main-background-color) !important;
+    opacity: 0.8;
+}
+.wrapper{
+    padding: 45px 24px 24px  24px !important;
+}
+.wrapper > div {
+    margin-bottom: 15px;
+}

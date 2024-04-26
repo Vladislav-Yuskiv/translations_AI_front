@@ -1,0 +1,29 @@
+.wrapper{
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: row;
+}
+.valueInfoWrapper{
+
+}
+.keyInfoWrapper{
+    margin-right: 140px;
+}
+.blockTitle{
+    font-size: 18px;
+    color: var(--main-background-color);
+    margin-bottom: 10px;
+}
+.labelTitle{
+    font-size: 16px;
+    font-style: italic;
+    margin-bottom: 7px;
+}
+.accentValue{
+    font-weight: bold;
+    font-size: 14px;
+    margin-left: 5px;
+}
+.spin{
+    margin-left: 15px;
+}

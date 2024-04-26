@@ -133,11 +133,18 @@ export interface IBundleKeyValue{
     createdAt: string,
     updatedAt: string
 }
+
+export interface IModalKeyEdit{
+    keyId: string
+    keyName: string
+    keyContext:string
+}
 export interface IBundleKy{
     _id: string
     name:string
     description: string
-    createdBy: string
+    createdBy: string,
+    updatedBy: string,
     updatedAt: string
     createdAt: string
     translationBundle:string
@@ -153,6 +160,7 @@ export interface IBundlesState {
    deleteLoading: boolean
    currentBundleUsers: IUser[]
    loading: boolean
+   isWarningAlert: boolean
 }
 
 export interface IBundle {

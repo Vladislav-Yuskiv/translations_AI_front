@@ -1,0 +1,6 @@
+.wrapper{
+    padding: 45px 24px 24px  24px !important;
+}
+.wrapper > div {
+    margin-bottom: 15px;
+}

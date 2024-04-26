@@ -1,5 +1,6 @@
 import {Spin, TableColumnsType, Tooltip} from "antd";
 import styles from "./TranslationsPage.module.css"
+import {EditFilled,DeleteFilled} from "@ant-design/icons";
 import * as locale from 'locale-codes'
 
 interface ITranslationsColumnsProps{
@@ -65,6 +66,24 @@ export default function TranslationsColumns({
                                    ? <Spin size={"small"}/>
                                    : value
                            }
+                       </div>
+                   )
+               }
+           },
+           {
+               title: 'Actions',
+               dataIndex: 'keyActions',
+               key: 'keyActions',
+               render: () => {
+                   return (
+                       <div className={styles.actionColumnWrapper}>
+                           <div className={styles.actionColumnIconWrap}>
+                               <EditFilled className={styles.actionColumnIcon}/>
+                           </div>
+
+                            <div className={styles.actionColumnIconWrap}>
+                                <DeleteFilled className={styles.actionColumnIcon}/>
+                            </div>
                        </div>
                    )
                }

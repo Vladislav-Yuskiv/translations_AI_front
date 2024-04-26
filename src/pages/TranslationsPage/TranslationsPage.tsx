@@ -2,17 +2,24 @@ import HeaderWithContent from "../../componets/HeaderWithContent";
 import * as locale from 'locale-codes'
 import styles from "./TranslationsPage.module.css"
 import {HeaderPage} from "../../componets/StyledComponents";
-import {Select, Table} from "antd";
+import {Button, Select, Table} from "antd";
 import TranslationsColumns from "./TranslationsColumns";
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {bundleKeysSelectors} from "../../redux/bundleKeys";
 import bundlesSelectors from "../../redux/bundles/bundlesSelectors";
-import {CheckOutlined, DownOutlined, UpOutlined} from "@ant-design/icons";
+import {CheckOutlined, DownOutlined, UpOutlined,WarningFilled} from "@ant-design/icons";
 import {getKeysByBundleId} from "../../redux/bundleKeys/bundleKeysSlice";
 import Loader from "../../componets/Loader";
 import valuesSelectors from "../../redux/bundleKeysValues/bundleKeysValuesSelectors";
 import {getValuesByKeyIds} from "../../redux/bundleKeysValues/bundleKeysValuesSlice";
+import ExpandedItemTable from "../../componets/ExpandedItemTable";
+import { Input } from 'antd';
+import AntdButton from "../../componets/AntdButton"
+import {checkBundleAlert} from "../../redux/bundles/bundleSlice";
+
+const { Search } = Input;
+
 export default function TranslationsPage(){
     document.title = "Translatic | Translations";
 
@@ -26,11 +33,11 @@ export default function TranslationsPage(){
     const keysValues = useSelector(valuesSelectors.getKeysValues);
     const currentBundle = useSelector(bundlesSelectors.getCurrentBundle);
     const pagination = useSelector(bundleKeysSelectors.getPagination);
+    const bundleAlert = useSelector(bundlesSelectors.getBundleAlert)
 
     const [translationData, setTranslationData] = useState<any[]>([]);
     const [selectedLanguage, setSelectedLanguage] = useState('en');
     const [isOpen, setIsOpen] = useState(false);
-
 
     useEffect(() => {
         if(!currentBundle || !keys[currentBundle._id]) return
@@ -43,6 +50,10 @@ export default function TranslationsPage(){
                 key: bundleKey._id,
                 name: bundleKey.name,
                 description: bundleKey.description,
+                createdAt: bundleKey.createdAt,
+                updatedAt: bundleKey.updatedAt,
+                updatedBy: bundleKey.updatedBy,
+                createdBy: bundleKey.createdBy,
                 keyValue: ""
             }
         })
@@ -83,10 +94,15 @@ export default function TranslationsPage(){
                     &&  value.language === selectedLanguage
                 )
             });
+
             if(foundValue){
                 return {
                     ...tableData,
-                    keyValue: foundValue.value
+                    keyValue: foundValue.value,
+                    valueCreatedAt: foundValue.createdAt,
+                    valueUpdatedAt: foundValue.updatedAt,
+                    valueAddedBy: foundValue.addedUser,
+                    valueUpdatedBy: foundValue.updatedUser
                 }
             }else{
                 return tableData
@@ -97,6 +113,14 @@ export default function TranslationsPage(){
         setTranslationData(updatedTableData)
 
     }, [keysValues]);
+
+    useEffect(() => {
+        if(!currentBundle) return
+
+        console.log("Check bundle")
+        dispatch(checkBundleAlert(currentBundle._id,selectedLanguage))
+
+    }, [keysValues,currentBundle,selectedLanguage]);
 
     function getFilterArray(){
         if(!currentBundle) return []
@@ -112,7 +136,6 @@ export default function TranslationsPage(){
 
     function onSelect(value: string){
         setSelectedLanguage(value)
-
     }
 
 
@@ -121,14 +144,55 @@ export default function TranslationsPage(){
     return(
         <HeaderWithContent>
             <div className={styles.wrapper}>
-                <HeaderPage>Translations</HeaderPage>
+                <div className={styles.titleWithWarn}>
+                    <HeaderPage>Translations</HeaderPage>
+
+                    <div
+                        className={styles.warningWrapper}
+                        style={{
+                            display: bundleAlert ? "flex" : "none"
+                        }}
+                    >
+                        <WarningFilled />
+                        <p className={styles.warnText}>
+                            {`You have not completed the translation of this language for this ${currentBundle?.name ? currentBundle.name : "bundle"}`}
+                        </p>
+                    </div>
+                </div>
+
                 {
                     !currentBundle || keysInfoLoading ? (
                         <Loader/>
                     ) : (
                         <>
                             <div className={styles.actionsContainer}>
-                                <div  className={styles.selecteWrapper}>
+                                    <Button
+                                        className={styles.addKey}
+                                        size={"large"}
+                                    >
+                                        Create key
+                                    </Button>
+                                    <AntdButton
+                                        className={styles.actionBtn}
+                                        btnTitle={"Download CSV"}
+                                        onPress={() => console.log("")}
+                                        size={"large"}
+                                    />
+                                    <AntdButton
+                                        btnTitle={"Upload CSV"}
+                                        className={styles.actionBtn}
+                                        onPress={() => console.log("")}
+                                        size={"large"}
+                                    />
+                            </div>
+                            <div className={styles.searchAndSelectWrapper}>
+                                <Search
+                                    rootClassName={styles.searchRoot}
+                                    placeholder="Search  by key name, key context or key value"
+                                    allowClear
+                                    size="large"
+                                />
+                                <div  className={styles.selectWrapper}>
                                     <p className={styles.selectedWrapperText}>Selected language:
 
                                         <Select
@@ -166,15 +230,44 @@ export default function TranslationsPage(){
                                     </p>
                                 </div>
                             </div>
+
                             <Table
                                 bordered
+                                rootClassName={styles.rootTable}
                                 loading={keysLoading}
                                 columns={TranslationsColumns({
                                     selectedLanguage,
                                     keysValuesLoading
                                 })}
                                 dataSource={translationData}
-                                pagination={ {
+                                expandable={{
+                                    expandedRowRender: (record) => {
+                                        const valueInfo = {
+                                            value: record?.keyValue || "",
+                                            valueCreatedAt: record?.valueCreatedAt || "",
+                                            valueUpdatedAt: record?.valueUpdatedAt || "",
+                                            valueUpdatedBy: record?.valueUpdatedBy || "",
+                                            valueAddedBy: record?.valueAddedBy || ""
+                                        }
+
+                                        const keyInfo = {
+                                            name:record.name,
+                                            description: record.description,
+                                            updatedAt: record.updatedAt,
+                                            createdAt: record.createdAt,
+                                            createdBy: record.createdBy,
+                                            updatedBy: record.updatedBy
+                                        }
+
+                                        return (
+                                            <ExpandedItemTable
+                                                initialKeyInfo={keyInfo}
+                                                initialValueInfo={valueInfo}
+                                            />
+                                        )
+                                    }
+                                }}
+                                pagination={{
                                     position: ['bottomRight'],
                                     total: keysInfo[currentBundle._id]?.totalCount || 0,
                                     pageSize: pagination[currentBundle._id]?.limit || 10,

@@ -18,7 +18,8 @@ const initialState:IBundlesState = {
     loading: false,
     updateBundleLoading:false,
     deleteLoading: false,
-    currentBundle: null
+    currentBundle: null,
+    isWarningAlert: false
 };
 
 export const bundleSlice = createSlice({
@@ -52,6 +53,9 @@ export const bundleSlice = createSlice({
         setBundleUsersLoading: (state, action: PayloadAction<boolean>) => {
             state.bundleUsersLoading = action.payload;
         },
+        setWarningAlert: (state, action: PayloadAction<boolean>) => {
+            state.isWarningAlert = action.payload;
+        },
 
     },
 });
@@ -65,7 +69,8 @@ export const {
     setCurrentBundleUsers,
     setBundleUsersLoading,
     setModalCreate,
-    setCreatingLoading
+    setCreatingLoading,
+    setWarningAlert
 } = bundleSlice.actions;
 
 export const getBundles = ():any => async (dispatch: Dispatch<any>) => {
@@ -231,6 +236,22 @@ export const deleteUserInBundleById = (bundleId:string,userId:string):any => asy
 
     } catch (error) {
         dispatch(setDeleteLoading(false))
+        return authErrorHandler(error);
+    }
+}
+
+export const checkBundleAlert = (bundleId:string,language:string):any => async (dispatch: Dispatch<any>) => {
+    try {
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "get",
+            url: `/bundles/${bundleId}/checkTranslation?language=${language}`,
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<{showAlert: boolean}>(config);
+
+        dispatch(  setWarningAlert(result.showAlert))
+
+    } catch (error) {
         return authErrorHandler(error);
     }
 }

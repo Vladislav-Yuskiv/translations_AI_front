@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {
     createBrowserRouter,
     createRoutesFromElements,
-    Navigate, redirect,
+    Navigate,
     Route,
     redirectDocument,
     RouterProvider,
