@@ -89,7 +89,7 @@ export const getBundles = ():any => async (dispatch: Dispatch<any>) => {
     }
 }
 
-export const createBundle = (payload: IBundleCreateBody):any => async (dispatch: Dispatch<any>,getState: any) => {
+export const createBundle = (payload: IBundleCreateBody, callback: () => void):any => async (dispatch: Dispatch<any>,getState: any) => {
     try {
         dispatch(setCreatingLoading(true))
         const config: IAxiosFetchWithTokenRefresh = {
@@ -108,7 +108,9 @@ export const createBundle = (payload: IBundleCreateBody):any => async (dispatch:
         await dispatch(setCurrentBundle(result.bundle))
         await dispatch(setAvailableBundles([ result.bundle, ...availableBundles]))
 
+
         authSuccessNotification(result.message);
+        callback()
         dispatch(setCreatingLoading(false))
         dispatch(setModalCreate(false))
 
@@ -176,7 +178,7 @@ export const updateCurrentBundle = (bundleId:string, payload: Partial<IBundle>):
     }
 }
 
-export const deleteBundleById = (bundleId:string):any => async (dispatch: Dispatch<any>,getState: any) => {
+export const deleteBundleById = (bundleId:string,callback: () =>  void):any => async (dispatch: Dispatch<any>,getState: any) => {
     try {
         dispatch(setDeleteLoading(true))
 
@@ -193,6 +195,8 @@ export const deleteBundleById = (bundleId:string):any => async (dispatch: Dispat
 
         await dispatch(setCurrentBundle(filteredBundles[0]))
         await dispatch(setAvailableBundles([...filteredBundles]))
+
+        callback()
         dispatch(setDeleteLoading(false))
 
         authSuccessNotification(result.message);

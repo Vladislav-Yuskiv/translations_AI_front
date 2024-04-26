@@ -1,6 +1,5 @@
 import { configureStore} from "@reduxjs/toolkit";
 import {
-    persistStore,
     FLUSH,
     REHYDRATE,
     PAUSE,
@@ -10,6 +9,8 @@ import {
 } from "redux-persist";
 import { userSlice } from "./user";
 import {bundleSlice} from "./bundles";
+import {bundleKeysSlice} from "./bundleKeys";
+import {bundleKeysValuesSlice} from "./bundleKeysValues";
 
 
 const middleware = {
@@ -22,10 +23,10 @@ const middleware = {
 export const store = configureStore({
     reducer: {
         session: userSlice,
-        bundles: bundleSlice
+        bundles: bundleSlice,
+        keys: bundleKeysSlice,
+        bundlesKeysValues:bundleKeysValuesSlice
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(middleware),
     devTools: process.env.NODE_ENV === "development",
 });
-
-export const persistor = persistStore(store);

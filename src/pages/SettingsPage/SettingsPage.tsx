@@ -23,6 +23,7 @@ import userSelectors from "../../redux/user/userSelectors";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {useMediaQuery} from "@mui/material";
 import AreYouSureModal from "../../componets/Modals/AreYouSureModal";
+import {redirect, useNavigate} from "react-router-dom";
 
 const { Dragger } = Upload;
 
@@ -52,9 +53,9 @@ export default function SettingsPage(){
     const usersByBundleId = useSelector(bundlesSelectors.getCurrentBundleUsers);
     const bundleUsersLoading = useSelector(bundlesSelectors.getBundleUsersLoading);
 
-    const [bundleName, setBundleName] = useState(currentBundle?.name || "");
-    const [bundleDescription, setBundleDescription] = useState(currentBundle?.description ||  "")
-    const [bundleCategory, setBundleCategory] = useState(currentBundle?.category ||  "Business")
+    const [bundleName, setBundleName] = useState( "");
+    const [bundleDescription, setBundleDescription] = useState( "")
+    const [bundleCategory, setBundleCategory] = useState( "Business")
 
     const [tableData, setTableData] = useState<any[]>([])
     const [sureModal, setSureModal] = useState<"bundleDelete" | "userDelete" | null>(null)
@@ -74,8 +75,11 @@ export default function SettingsPage(){
     }, [bundleName,bundleDescription,bundleCategory]);
 
     useEffect(() => {
-        if(!currentBundle?._id) return
+        if(!currentBundle) return
 
+        setBundleName(currentBundle.name)
+        setBundleCategory(currentBundle.category)
+        setBundleDescription(currentBundle.description)
         dispatch(getUsersByBundleId(currentBundle._id))
     }, [currentBundle]);
 
@@ -104,7 +108,7 @@ export default function SettingsPage(){
             return window.alert("Something went wrong")
         }
 
-        dispatch(deleteBundleById(currentBundle._id))
+        dispatch(deleteBundleById(currentBundle._id, () =>  redirect("/home")))
     }
 
     function handleDeleteUser(userId: string){
@@ -246,7 +250,7 @@ export default function SettingsPage(){
 
     return(
         <HeaderWithContent>
-            <div>
+            <div className={styles.wrapper}>
                 <HeaderPage>Bundle Settings</HeaderPage>
 
                 {

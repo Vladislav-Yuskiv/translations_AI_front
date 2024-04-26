@@ -2,8 +2,8 @@ import axios, {AxiosError, AxiosRequestConfig} from "axios";
 import {IAxiosFetchWithTokenRefresh, ITokens} from "../types/interfaces";
 import {customLocalStorage} from "../utils/storage";
 
-axios.defaults.baseURL= 'http://13.50.51.70:3001'
-// axios.defaults.baseURL= 'http://localhost:3001'
+// axios.defaults.baseURL= 'http://13.50.51.70:3001'
+axios.defaults.baseURL= 'http://localhost:3002'
 export const token = {
     set(token: string) {
         axios.defaults.headers.common.Authorization = `Bearer ${token}`;

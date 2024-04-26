@@ -1,0 +1,84 @@
+.langWrap{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: var(--white-color);
+    box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.wrapper{
+    margin-top: 64px;
+}
+.langContainer{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.defaultContextText{
+    color: var(--black-300);
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.downIcon{
+    font-size: 12px;
+    color: var(--primary-black);
+    margin-left: 4px;
+}
+.upIcon{
+    font-size: 12px;
+    color: var(--black-300);
+    margin-left: 4px;
+}
+
+.selecteWrapper{
+    background-color: var(--white-color);
+    border-color: var(--main-background-color);
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    width: 250px;
+    height: 50px;
+    box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+}
+.actionsContainer{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: right;
+
+    margin: 20px 0;
+}
+.labelWrapper{
+    padding: 4px;
+}
+.label{
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.valueWrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.selectedWrapperText{
+    font-size: 14px;
+    font-weight: bold;
+}
+@media screen and (min-width: 768px) {
+    .wrapper{
+        margin-top: 0;
+    }
+}

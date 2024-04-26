@@ -29,15 +29,15 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
 
     const creatingLoading = useSelector(bundlesSelectors.getCreatingLoading)  ;
 
+    function clearState() {
+        setBundleName("")
+        setBundleDescription("")
+        setBundleCategory("")
+    }
+
     return (
         <Modal
             open={isOpen}
-            okButtonProps={{
-                className: styles.okBtn
-            }}
-            cancelButtonProps={{
-                className: styles.cancelBtn
-            }}
             className={styles.root}
             title={null}
             closeIcon={ <CloseOutlined />}
@@ -47,12 +47,15 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
                         <Button
                             className={styles.footerBtn}
                             loading={creatingLoading}
-                            disabled={bundleName.trim() === "" ||bundleDescription.trim() === "" || creatingLoading}
-                            onClick={() => onSubmit({
-                                name:bundleName,
-                                description: bundleDescription,
-                                category: bundleCategory
-                            })}
+                            disabled={bundleName.trim() === "" || bundleDescription.trim() === "" || !bundleCategory || creatingLoading}
+                            onClick={async () => {
+                               await onSubmit({
+                                    name:bundleName,
+                                    description: bundleDescription,
+                                    category: bundleCategory
+                                })
+                                clearState()
+                            }}
                         >
                             Add new bundle
                         </Button>
@@ -60,7 +63,10 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
 
                 )
             }}
-            onCancel={onClose}
+            onCancel={() => {
+                onClose()
+                clearState()
+            }}
             style={{
                 width: 200,
                 height: 150,
@@ -71,6 +77,7 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
                     label={"Bundle name"}
                     value={bundleName}
                     rightText={"Required"}
+                    placeholder={"My bundle"}
                     size={"large"}
                     onChange={(e) => {
                         setBundleName(e.target.value)
@@ -82,6 +89,7 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
                     label={"Bundle description"}
                     rightText={"Required"}
                     size={"large"}
+                    placeholder={"Bundle description"}
                     onChange={(e) => {
                         setBundleDescription(e.target.value)
                     }}
@@ -96,6 +104,7 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
                         <Select
                             options={categoryOptions}
                             value={bundleCategory}
+                            placeholder={"Choose an option"}
                             className={styles.categorySelect}
                             onChange={v => {
                                 setBundleCategory(v)
@@ -105,7 +114,6 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
                     style={{
                         width: "100%"
                     }}
-                    placeholder={"Choose an option"}
                     rightText={"Required"}
                 />
             </div>

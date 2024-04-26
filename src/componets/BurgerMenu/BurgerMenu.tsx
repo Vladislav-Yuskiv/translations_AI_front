@@ -21,7 +21,7 @@ export default function BurgerMenu({children }:{children?:ReactNode}){
 
     return(
         <Layout>
-            <Header style={{backgroundColor:"#ffffff"}} className={styles.header}>
+            <Header style={{backgroundColor:"#ffffff",zIndex: 99,  position: 'fixed', width:"100%"}} className={styles.header}>
                 <div className={styles.headerLogoAndDropdown}>
                     <img
                         className={styles.logo}

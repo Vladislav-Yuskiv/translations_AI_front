@@ -1,12 +1,11 @@
 import React, {useEffect} from 'react';
 import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Navigate,
-  Route,
-  RouterProvider,
-  Routes,
-  useBlocker,
+    createBrowserRouter,
+    createRoutesFromElements,
+    Navigate, redirect,
+    Route,
+    redirectDocument,
+    RouterProvider,
 } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -22,7 +21,9 @@ import userSelectors from "./redux/user/userSelectors";
 import Loader from "./componets/Loader";
 import CreateBundleModal from "./componets/Modals/CreateBundleModal";
 import {bundlesSelectors} from "./redux/bundles";
-import {createBundle, setModalCreate} from "./redux/bundles/bundleSlice";
+import {createBundle, getBundles, setModalCreate} from "./redux/bundles/bundleSlice";
+import {getBundleInfo} from "./redux/bundleKeys/bundleKeysSlice";
+import {bundleKeysSelectors} from "./redux/bundleKeys";
 
 
 let router = createBrowserRouter(
@@ -96,15 +97,31 @@ function App() {
 
   const dispatch = useDispatch();
   const refreshLoading = useSelector(userSelectors.getRefreshLoading)
-  const loginLoading = useSelector(userSelectors.getLoginLoading)
   const showUnsaved = useSelector(userSelectors.getShowUnsaved)
   const isModalCreate = useSelector(bundlesSelectors.getModalCreate)  ;
+  const bundlesLoading = useSelector(bundlesSelectors.getLoading);
+  const currentBundle = useSelector(bundlesSelectors.getCurrentBundle);
+  const keysInfo = useSelector(bundleKeysSelectors.getKeysInfo);
+  const userId = useSelector(userSelectors.getUserId);
 
   useEffect(() => {
           dispatch(currentUser())
   }, [dispatch]);
 
-  const showLoader = refreshLoading || loginLoading
+    useEffect(() => {
+        if(bundlesLoading || !userId) return
+
+        dispatch(getBundles())
+    }, [userId]);
+
+    useEffect(() => {
+        if(!currentBundle) return
+
+        if(!keysInfo[currentBundle._id]){
+            dispatch(getBundleInfo(currentBundle._id))
+        }
+    }, [currentBundle,keysInfo]);
+
 
   useEffect(() => {
     const handleBeforeUnload = (event:any) => {
@@ -132,7 +149,7 @@ function App() {
         <CreateBundleModal
             isOpen={isModalCreate}
             onClose={() => dispatch(setModalCreate(false))}
-            onSubmit={async (payload) =>  dispatch(createBundle(payload))}
+            onSubmit={async (payload) =>  dispatch(createBundle(payload, () =>  redirectDocument("/home")))}
         />
     </div>
   );

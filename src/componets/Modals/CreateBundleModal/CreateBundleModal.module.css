@@ -5,7 +5,8 @@
     background-color: var(--main-background-color) !important;
     opacity: 0.8;
 }
-.root .ant-modal-content  {
+
+.root > div > div {
     padding: 0!important;
 }
 .cancelBtn:hover{
@@ -19,7 +20,7 @@
     border-color: var(--main-background-color) !important;
 }
 .wrapper{
-    padding: 24px !important;
+    padding: 45px 24px 24px  24px !important;
 }
 .wrapper > div {
     margin-bottom: 15px;

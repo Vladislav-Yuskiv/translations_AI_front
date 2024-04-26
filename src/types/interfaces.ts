@@ -81,7 +81,7 @@ export interface IUpdateUserBody{
 export interface IAxiosFetchWithTokenRefresh{
     method: Method,
     url: string,
-    data?: any; // Request body
+    data?: any;
     options?: Partial<AxiosRequestConfig>
 }
 
@@ -93,6 +93,54 @@ export interface ISessionState {
     loading: boolean
     isCollapsed: boolean
     showUnsaved: boolean
+}
+
+export interface IBundleInfoResponse{
+    totalCount: number
+}
+export interface IBundleKeysState {
+    keysLoading: boolean
+    keysInfoLoading: boolean
+    processKeyLoading: boolean
+    keysInfo: {
+        [key:string]: {
+            totalCount: number
+        }
+    }
+    pagination: {
+        [key:string]: {
+            page: number,
+            limit: number
+        }
+    }
+    keys: {
+        [key: string]: IBundleKy[]
+    }
+}
+
+export interface IBundlesKeysValuesState{
+    keysValues: IBundleKeyValue[]
+    keysValuesLoading: boolean
+    keyValueProcessing: boolean
+}
+
+export interface IBundleKeyValue{
+    value: string,
+    language: string,
+    updatedUser: string,
+    addedUser: string,
+    translation_key: string,
+    createdAt: string,
+    updatedAt: string
+}
+export interface IBundleKy{
+    _id: string
+    name:string
+    description: string
+    createdBy: string
+    updatedAt: string
+    createdAt: string
+    translationBundle:string
 }
 
 export interface IBundlesState {
@@ -113,9 +161,13 @@ export interface IBundle {
     category:  string;
     description: string;
     apiKey: string;
+    translatedLanguages: string[]
     name: string;
 }
+
 export interface IRootState{
     session: ISessionState
     bundles: IBundlesState
+    keys: IBundleKeysState
+    bundlesKeysValues: IBundlesKeysValuesState
 }

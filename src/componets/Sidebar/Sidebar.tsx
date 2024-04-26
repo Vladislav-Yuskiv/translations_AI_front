@@ -13,6 +13,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {userSelectors} from "../../redux/user";
 import {setCollapsed} from "../../redux/user/userSlice";
 import HelpContainer from "../HelpContainer";
+import {bundlesSelectors} from "../../redux/bundles";
 
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -22,6 +23,7 @@ function Sidebar({ children }:{children?:ReactNode}) {
     const dispatch = useDispatch();
 
     const collapsed = useSelector(userSelectors.getCollapsed);
+    const currentBundle = useSelector(bundlesSelectors.getCurrentBundle)
 
     const [isHelpedOpen,setHelpOpen] = useState(false);
 
@@ -29,7 +31,7 @@ function Sidebar({ children }:{children?:ReactNode}) {
         <Layout style={{ minHeight: '100vh' }} className={styles.container}>
             <Sider
                 collapsible
-                style={{backgroundColor:"#ffffff"}}
+                style={{backgroundColor:"#ffffff", position:"fixed" , height:  "100%"}}
                 collapsed={collapsed}
                 className={styles.sider}
                 trigger={null}
@@ -68,12 +70,12 @@ function Sidebar({ children }:{children?:ReactNode}) {
                 </div>
 
             </Sider>
-            <Layout>
+            <Layout style={{ marginLeft: !collapsed  ? 200 : 43}}>
                 <Header className={styles.headerWrapper}>
 
                         <div className={styles.selectWithIconContainer}>
                             <div className={styles.selectIconWrapper}>
-                                <span className={styles.selectIconWrapperText}>{"Company".charAt(0)}</span>
+                                <span className={styles.selectIconWrapperText}>{currentBundle?.name.charAt(0) || "Bundle".charAt(0)}</span>
                             </div>
                             <SelectCompany/>
                         </div>

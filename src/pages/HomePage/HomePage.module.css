@@ -1,3 +1,50 @@
-.wrapper{
+.container{
 
+}
+.wrapper{
+    margin-top: 64px;
+}
+.infoBlockWrapper{
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+}
+
+.infoBlockItem{
+    padding: 16px;
+    border-radius: 8px;
+    background: var(--white-color);
+    box-shadow: 0 1px 8px #0100301a;
+    transition: all .3s ease;
+    height: 124px;
+
+    margin-bottom: 30px;
+}
+.infoBlockLabel{
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 18px;
+}
+.infoBlockValue{
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 28px;
+
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+@media screen and (min-width: 768px) {
+    .wrapper{
+        margin-top: 0;
+    }
+    .infoBlockWrapper{
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+    .infoBlockItem{
+        width: 468px ;
+        margin: 10px 25px;
+    }
 }

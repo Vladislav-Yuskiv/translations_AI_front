@@ -30,7 +30,7 @@ export default function AntdInput({
                 <>{React.cloneElement(customInput as React.ReactElement<any>, props)}</>
             ) : (
                 <Input
-                    defaultValue={value}
+                    value={value}
                     color={"green"}
                     className={styles.antdInput}
                     {...props}
