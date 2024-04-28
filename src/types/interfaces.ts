@@ -137,6 +137,7 @@ export interface IBundlesKeysValuesState{
 }
 
 export interface IBundleKeyValue{
+    _id: string
     value: string,
     language: string,
     updatedUser: string,
@@ -146,10 +147,27 @@ export interface IBundleKeyValue{
     updatedAt: string
 }
 
-export interface IModalKeyEdit{
-    keyId: string
-    keyName: string
-    keyContext:string
+export interface IModalKeyEditConfig{
+    isOpen: boolean
+    keyInfo: {
+        keyId: string
+        keyName: string
+        keyContext:string
+    }
+
+}
+
+export interface IModalKeyValueEditConfig{
+    isOpen: boolean
+    valueInfo: {
+        keyId: string
+        keyName: string
+        keyDescription: string
+        language: string
+        valueId:string
+        value:string
+    }
+
 }
 export interface IBundleKy{
     _id: string

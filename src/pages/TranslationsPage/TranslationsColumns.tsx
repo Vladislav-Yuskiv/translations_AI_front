@@ -1,8 +1,9 @@
 import {Spin, TableColumnsType, Tooltip} from "antd";
 import styles from "./TranslationsPage.module.css"
-import {DeleteFilled, WarningFilled} from "@ant-design/icons";
+import {DeleteFilled, WarningFilled,EditFilled } from "@ant-design/icons";
 import * as locale from 'locale-codes'
 import ReactCountryFlag from "react-country-flag";
+import {IModalKeyEditConfig, IModalKeyValueEditConfig} from "../../types/interfaces";
 
 interface ITranslationsColumnsProps{
     availableLanguages: string[]
@@ -10,13 +11,17 @@ interface ITranslationsColumnsProps{
     keysValuesLoading: boolean
     setIsDeleteModalKeyId: (keyId:string) => void
     setModalDeleteLanguage: (languageTag: string) => void
+    setEditKeyModalConfig: (config: IModalKeyEditConfig) => void
+    setEditKeyValueModalConfig: (config: IModalKeyValueEditConfig) => void
 }
 export default function TranslationsColumns({
                                                 availableLanguages,
                                                 selectedLanguage,
                                                 keysValuesLoading,
                                                 setIsDeleteModalKeyId,
-                                                setModalDeleteLanguage
+                                                setModalDeleteLanguage,
+                                                setEditKeyModalConfig,
+                                                setEditKeyValueModalConfig
 }:ITranslationsColumnsProps):TableColumnsType<any>{
 
     return(
@@ -26,7 +31,22 @@ export default function TranslationsColumns({
                dataIndex: 'key',
                key: 'key',
                render: (value, record) => {
-                   return record.name
+                   return(
+                       <div className={styles.titleWrapper}>
+                           <p>{record.name}</p>
+                           <EditFilled
+                               className={styles.actionColumnIcon}
+                               onClick={() => setEditKeyModalConfig({
+                                   isOpen: true,
+                                   keyInfo: {
+                                       keyId: record.key,
+                                       keyName: record.name,
+                                       keyContext: record.description
+                                   }
+                               })}
+                           />
+                       </div>
+                   )
                }
            },
            {
@@ -83,7 +103,7 @@ export default function TranslationsColumns({
                },
                dataIndex: 'keyValue',
                key: 'keyValue',
-               render: (value) => {
+               render: (value, record) => {
                    if(keysValuesLoading){
                        return (
                            <div className={styles.valueWrapper}>
@@ -92,9 +112,29 @@ export default function TranslationsColumns({
                        )
                    }else{
                       return(
-                          value.trim() === ""
-                              ?   <WarningFilled style={{color:"red"}} />
-                              :   value
+                          <div className={styles.valueWrapperWithIcon}>
+                              {
+                                  value.trim() === ""
+                                      ?   <WarningFilled style={{color:"red"}} />
+                                      :   <p>{value}</p>
+                              }
+                              <EditFilled
+                                  className={styles.actionColumnIcon}
+                                  onClick={() => {
+                                      setEditKeyValueModalConfig({
+                                          isOpen: true,
+                                          valueInfo: {
+                                              value: value,
+                                              keyId: record.key,
+                                              valueId: record.keyValueId,
+                                              keyDescription: record.description,
+                                              keyName: record.name,
+                                              language: selectedLanguage
+                                          }
+                                      })
+                                  }}
+                              />
+                          </div>
                       )
                    }
                }

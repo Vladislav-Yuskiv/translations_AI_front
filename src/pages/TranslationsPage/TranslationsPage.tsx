@@ -19,6 +19,10 @@ import AntdButton from "../../componets/AntdButton"
 import {checkBundleAlert, deleteLanguageFromBundle, setCurrentLanguageForBundle} from "../../redux/bundles/bundleSlice";
 import AddLanguageModal from "../../componets/Modals/AddLanguageModal";
 import AreYouSureModal from "../../componets/Modals/AreYouSureModal";
+import EditBundleKeyModal from "../../componets/Modals/EditBundleKeyModal";
+import {IModalKeyEditConfig, IModalKeyValueEditConfig} from "../../types/interfaces";
+import EditKeyValueModal from "../../componets/Modals/EditKeyValueModal";
+import CreateKeyModal from "../../componets/Modals/CreateKeyModal";
 
 const { Search } = Input;
 
@@ -44,8 +48,30 @@ export default function TranslationsPage(){
     const [translationData, setTranslationData] = useState<any[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [addLanguageModal, setAddLanguageModal] = useState(false);
+    const [isModalKeyCreate, setIsModalKeyCreate] = useState(false);
     const [isDeleteModalKeyId, setIsDeleteModalKeyId] = useState("");
     const [isModalDeleteLanguage, setModalDeleteLanguage] = useState("");
+
+    const [editKeyModalConfig, setEditKeyModalConfig] = useState<IModalKeyEditConfig>({
+        isOpen: false,
+        keyInfo: {
+            keyId:"",
+            keyName:"",
+            keyContext:""
+        }
+    });
+
+    const [editKeyValueModalConfig, setEditKeyValueModalConfig] = useState<IModalKeyValueEditConfig>({
+        isOpen: false,
+        valueInfo: {
+            keyId:"",
+            keyName: "",
+            keyDescription:"",
+            value:"",
+            valueId:"",
+            language: ""
+        }
+    });
 
 
     useEffect(() => {
@@ -105,6 +131,7 @@ export default function TranslationsPage(){
             if(foundValue){
                 return {
                     ...tableData,
+                    keyValueId: foundValue._id,
                     keyValue: foundValue.value,
                     valueCreatedAt: foundValue.createdAt,
                     valueUpdatedAt: foundValue.updatedAt,
@@ -189,6 +216,7 @@ export default function TranslationsPage(){
                             <div className={styles.actionsContainer}>
                                     <Button
                                         className={styles.addKey}
+                                        onClick={() => setIsModalKeyCreate(true)}
                                         size={"large"}
                                     >
                                         Create key
@@ -261,7 +289,9 @@ export default function TranslationsPage(){
                                     selectedLanguage: currentLanguagesForBundle[currentBundle._id],
                                     keysValuesLoading,
                                     setIsDeleteModalKeyId,
-                                    setModalDeleteLanguage
+                                    setModalDeleteLanguage,
+                                    setEditKeyModalConfig,
+                                    setEditKeyValueModalConfig
                                 })}
                                 dataSource={translationData}
                                 expandable={{
@@ -351,6 +381,42 @@ export default function TranslationsPage(){
                         ))
                         setModalDeleteLanguage("")
                     }}
+                />
+                <EditBundleKeyModal
+                    config={editKeyModalConfig}
+                    onClose={() => {
+                        setEditKeyModalConfig({
+                            isOpen: false,
+                            keyInfo: {
+                                keyId: "",
+                                keyName: "",
+                                keyContext: ""
+                            }
+                        })
+                    }}
+                />
+
+                <EditKeyValueModal
+                    config={editKeyValueModalConfig}
+                    onClose={() => {
+                        setEditKeyValueModalConfig({
+                            isOpen: false,
+                            valueInfo: {
+                                value:"",
+                                keyName: "",
+                                valueId:"",
+                                keyDescription: "",
+                                keyId: "",
+                                language: ""
+                            }
+                        })
+                    }}
+                />
+
+                <CreateKeyModal
+                    isOpen={isModalKeyCreate}
+                    onClose={() => setIsModalKeyCreate(false)}
+                    translatedLanguages={currentBundle?.translatedLanguages || []}
                 />
 
             </div>
