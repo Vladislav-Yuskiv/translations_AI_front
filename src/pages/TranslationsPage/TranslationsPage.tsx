@@ -9,14 +9,16 @@ import {useDispatch, useSelector} from "react-redux";
 import {bundleKeysSelectors} from "../../redux/bundleKeys";
 import bundlesSelectors from "../../redux/bundles/bundlesSelectors";
 import {CheckOutlined, DownOutlined, UpOutlined,WarningFilled} from "@ant-design/icons";
-import {getKeysByBundleId} from "../../redux/bundleKeys/bundleKeysSlice";
+import {deleteTranslationKey, getKeysByBundleId} from "../../redux/bundleKeys/bundleKeysSlice";
 import Loader from "../../componets/Loader";
 import valuesSelectors from "../../redux/bundleKeysValues/bundleKeysValuesSelectors";
 import {getValuesByKeyIds} from "../../redux/bundleKeysValues/bundleKeysValuesSlice";
 import ExpandedItemTable from "../../componets/ExpandedItemTable";
 import { Input } from 'antd';
 import AntdButton from "../../componets/AntdButton"
-import {checkBundleAlert} from "../../redux/bundles/bundleSlice";
+import {checkBundleAlert, deleteLanguageFromBundle, setCurrentLanguageForBundle} from "../../redux/bundles/bundleSlice";
+import AddLanguageModal from "../../componets/Modals/AddLanguageModal";
+import AreYouSureModal from "../../componets/Modals/AreYouSureModal";
 
 const { Search } = Input;
 
@@ -26,18 +28,25 @@ export default function TranslationsPage(){
     const dispatch = useDispatch();
 
     const keys = useSelector(bundleKeysSelectors.getAllKeys);
-    const keysLoading = useSelector(bundleKeysSelectors.getKeysLoading)
+    const keysLoading = useSelector(bundleKeysSelectors.getKeysLoading);
+    const keysProcessLoading = useSelector(bundleKeysSelectors.getProcessKeyLoading)
     const keysInfo = useSelector(bundleKeysSelectors.getKeysInfo);
     const keysInfoLoading = useSelector(bundleKeysSelectors.getKeysInfoLoading);
     const keysValuesLoading = useSelector(valuesSelectors.getKeysValuesLoading);
     const keysValues = useSelector(valuesSelectors.getKeysValues);
     const currentBundle = useSelector(bundlesSelectors.getCurrentBundle);
     const pagination = useSelector(bundleKeysSelectors.getPagination);
-    const bundleAlert = useSelector(bundlesSelectors.getBundleAlert)
+    const bundleAlert = useSelector(bundlesSelectors.getBundleAlert);
+    const currentLanguagesForBundle = useSelector(bundlesSelectors.getCurrentLanguageForBundles)
+    const deletingLanguage = useSelector(bundlesSelectors.getDeletingLanguage)
+
 
     const [translationData, setTranslationData] = useState<any[]>([]);
-    const [selectedLanguage, setSelectedLanguage] = useState('en');
     const [isOpen, setIsOpen] = useState(false);
+    const [addLanguageModal, setAddLanguageModal] = useState(false);
+    const [isDeleteModalKeyId, setIsDeleteModalKeyId] = useState("");
+    const [isModalDeleteLanguage, setModalDeleteLanguage] = useState("");
+
 
     useEffect(() => {
         if(!currentBundle || !keys[currentBundle._id]) return
@@ -65,8 +74,6 @@ export default function TranslationsPage(){
     useEffect(() => {
         if(!currentBundle) return
 
-        setSelectedLanguage(currentBundle.translatedLanguages[0])
-
         dispatch(getKeysByBundleId(currentBundle._id, {page: 1, limit: 5}))
 
     }, [currentBundle]);
@@ -80,8 +87,8 @@ export default function TranslationsPage(){
 
         const keysIds = getBundleKeys.map(key => key._id)
 
-        dispatch(getValuesByKeyIds(currentBundle._id, selectedLanguage, keysIds))
-    }, [keys,currentBundle,selectedLanguage]);
+        dispatch(getValuesByKeyIds(currentBundle._id, currentLanguagesForBundle[currentBundle._id], keysIds))
+    }, [keys,currentBundle,currentLanguagesForBundle]);
 
     useEffect(() => {
         if(translationData.length <= 0) return
@@ -91,7 +98,7 @@ export default function TranslationsPage(){
             const foundValue = keysValues.find(value => {
                 return (
                     value.translation_key === tableData.key
-                    &&  value.language === selectedLanguage
+                    &&  value.language === currentLanguagesForBundle[currentBundle?._id!]
                 )
             });
 
@@ -117,10 +124,9 @@ export default function TranslationsPage(){
     useEffect(() => {
         if(!currentBundle) return
 
-        console.log("Check bundle")
-        dispatch(checkBundleAlert(currentBundle._id,selectedLanguage))
+        dispatch(checkBundleAlert(currentBundle._id,currentLanguagesForBundle[currentBundle._id]))
 
-    }, [keysValues,currentBundle,selectedLanguage]);
+    }, [keysValues,currentBundle,currentLanguagesForBundle]);
 
     function getFilterArray(){
         if(!currentBundle) return []
@@ -135,30 +141,45 @@ export default function TranslationsPage(){
     }
 
     function onSelect(value: string){
-        setSelectedLanguage(value)
+        dispatch(setCurrentLanguageForBundle({
+            ...currentLanguagesForBundle,
+            [currentBundle?._id!]: value
+        }))
     }
 
 
-    // console.log(locale.all)
-    //console.log(locale.where('tag', 'en'))
     return(
         <HeaderWithContent>
             <div className={styles.wrapper}>
-                <div className={styles.titleWithWarn}>
-                    <HeaderPage>Translations</HeaderPage>
+                <div className={styles.titleWithBtnContainer}>
+                    <div className={styles.titleWithWarn}>
+                        <HeaderPage>Translations</HeaderPage>
 
-                    <div
-                        className={styles.warningWrapper}
-                        style={{
-                            display: bundleAlert ? "flex" : "none"
-                        }}
-                    >
-                        <WarningFilled />
-                        <p className={styles.warnText}>
-                            {`You have not completed the translation of this language for this ${currentBundle?.name ? currentBundle.name : "bundle"}`}
-                        </p>
+                        <div
+                            className={styles.warningWrapper}
+                            style={{
+                                display: bundleAlert ? "flex" : "none"
+                            }}
+                        >
+                            <WarningFilled />
+                            <p className={styles.warnText}>
+                                {`You have not completed the translation of this language for this ${currentBundle?.name ? currentBundle.name : "bundle"}`}
+                            </p>
+                        </div>
                     </div>
+                    {
+                        currentBundle && (
+                            <AntdButton
+                                btnTitle={"Add new language"}
+                                className={styles.actionBtn}
+                                size={"large"}
+                                onPress={() => setAddLanguageModal(true)}
+                            />
+                        )
+                    }
+
                 </div>
+
 
                 {
                     !currentBundle || keysInfoLoading ? (
@@ -198,7 +219,7 @@ export default function TranslationsPage(){
                                         <Select
                                             open={isOpen}
                                             variant={"borderless"}
-                                            value={selectedLanguage}
+                                            value={currentLanguagesForBundle[currentBundle._id]}
                                             suffixIcon={
                                                 !isOpen
                                                     ? <DownOutlined className={styles.downIcon}/>
@@ -215,7 +236,7 @@ export default function TranslationsPage(){
                                                     <div className={styles.labelWrapper}>
                                                         <span className={styles.label}>{option.label}</span>
                                                         {
-                                                            option.value === selectedLanguage && (
+                                                            option.value === currentLanguagesForBundle[currentBundle?._id] && (
                                                                 <CheckOutlined style={{
                                                                     marginLeft: 15,
                                                                     fontWeight:'bold'
@@ -236,8 +257,11 @@ export default function TranslationsPage(){
                                 rootClassName={styles.rootTable}
                                 loading={keysLoading}
                                 columns={TranslationsColumns({
-                                    selectedLanguage,
-                                    keysValuesLoading
+                                    availableLanguages: currentBundle.translatedLanguages,
+                                    selectedLanguage: currentLanguagesForBundle[currentBundle._id],
+                                    keysValuesLoading,
+                                    setIsDeleteModalKeyId,
+                                    setModalDeleteLanguage
                                 })}
                                 dataSource={translationData}
                                 expandable={{
@@ -297,6 +321,37 @@ export default function TranslationsPage(){
                         </>
                     )
                 }
+                <AddLanguageModal
+                    isOpen={addLanguageModal}
+                    onClose={() => setAddLanguageModal(false)}
+                    bundleId={currentBundle?._id!}
+                    alreadyAddedLanguages={currentBundle?.translatedLanguages!}
+                />
+                <AreYouSureModal
+                    title={"Are you sure?"}
+                    isOpen={Boolean(isDeleteModalKeyId)}
+                    onClose={() => setIsDeleteModalKeyId("")}
+                    confirmLoading={keysProcessLoading}
+                    description={"This key and its values will be deleted for all languages."}
+                    onSubmit={() => {
+                        dispatch(deleteTranslationKey(currentBundle?._id!,isDeleteModalKeyId))
+                        setIsDeleteModalKeyId("")
+                    }}
+                />
+                <AreYouSureModal
+                    title={"Are you sure?"}
+                    isOpen={Boolean(isModalDeleteLanguage)}
+                    onClose={() => setModalDeleteLanguage("")}
+                    confirmLoading={deletingLanguage}
+                    description={"This language and its values will be deleted for all languages."}
+                    onSubmit={() => {
+                        dispatch(deleteLanguageFromBundle(
+                            currentBundle?._id!,
+                            currentLanguagesForBundle[currentBundle?._id!]
+                        ))
+                        setModalDeleteLanguage("")
+                    }}
+                />
 
             </div>
         </HeaderWithContent>

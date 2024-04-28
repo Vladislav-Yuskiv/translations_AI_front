@@ -5,6 +5,7 @@ import {Spin} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import bundlesSelectors from "../../redux/bundles/bundlesSelectors";
 import {getUsersByBundleId} from "../../redux/bundles/bundleSlice";
+import { WarningFilled} from "@ant-design/icons";
 
 interface IExpandedItemTableProps{
 
@@ -213,7 +214,10 @@ function LabelItem({
                 loading
                     ? <Spin size={"small"} className={styles.spin}/>
                     : (
-                        <span className={styles.accentValue}>{value}</span>
+                            value.trim() === ""
+                                    ?  <WarningFilled style={{color:"red", marginLeft: 5}} />
+                                    :  <span className={styles.accentValue}>{value}</span>
+
                     )
             }
 

@@ -1,15 +1,22 @@
 import {Spin, TableColumnsType, Tooltip} from "antd";
 import styles from "./TranslationsPage.module.css"
-import {EditFilled,DeleteFilled} from "@ant-design/icons";
+import {DeleteFilled, WarningFilled} from "@ant-design/icons";
 import * as locale from 'locale-codes'
+import ReactCountryFlag from "react-country-flag";
 
 interface ITranslationsColumnsProps{
+    availableLanguages: string[]
     selectedLanguage:string
     keysValuesLoading: boolean
+    setIsDeleteModalKeyId: (keyId:string) => void
+    setModalDeleteLanguage: (languageTag: string) => void
 }
 export default function TranslationsColumns({
+                                                availableLanguages,
                                                 selectedLanguage,
                                                 keysValuesLoading,
+                                                setIsDeleteModalKeyId,
+                                                setModalDeleteLanguage
 }:ITranslationsColumnsProps):TableColumnsType<any>{
 
     return(
@@ -33,7 +40,10 @@ export default function TranslationsColumns({
                                    <p className={styles.defaultContextText}>Default context  language:</p>
 
                                        <div className={styles.langWrap}>
-                                           <img src="https://flagsapi.com/US/flat/24.png"/>
+                                           <ReactCountryFlag
+                                               countryCode={"US"}
+                                               style={{fontSize: 24}}
+                                           />
                                        </div>
                                </div>
                            </Tooltip>
@@ -47,42 +57,60 @@ export default function TranslationsColumns({
                title: () => {
                    const langName = locale.where('tag', selectedLanguage).name
                    return (
-                       <div className={styles.langContainer}>
-                           <div className={styles.langWrap}>
-                               <img src="https://flagsapi.com/US/flat/24.png"/>
+                       <div className={styles.flagWithActionContainer}>
+                           <div className={styles.flagWithName}>
+                               <div className={styles.langWrap}>
+                                   <ReactCountryFlag
+                                       countryCode={selectedLanguage === "en" ? "US" : selectedLanguage.toUpperCase()}
+                                       style={{fontSize: 24}}
+                                   />
+                               </div>
+
+                               <p>{langName}</p>
                            </div>
 
-                           <p>{langName}</p>
+                           {
+                               availableLanguages.length > 1 && (
+                                   <DeleteFilled
+                                       className={styles.actionColumnIcon}
+                                       onClick={() => setModalDeleteLanguage(selectedLanguage)}
+                                   />
+                               )
+                           }
+
                        </div>
                    )
                },
                dataIndex: 'keyValue',
                key: 'keyValue',
                render: (value) => {
-                   return (
-                       <div className={styles.valueWrapper}>
-                           {
-                               keysValuesLoading
-                                   ? <Spin size={"small"}/>
-                                   : value
-                           }
-                       </div>
-                   )
+                   if(keysValuesLoading){
+                       return (
+                           <div className={styles.valueWrapper}>
+                               <Spin size={"small"}/>
+                           </div>
+                       )
+                   }else{
+                      return(
+                          value.trim() === ""
+                              ?   <WarningFilled style={{color:"red"}} />
+                              :   value
+                      )
+                   }
                }
            },
            {
                title: 'Actions',
                dataIndex: 'keyActions',
                key: 'keyActions',
-               render: () => {
+               render: (value, record) => {
                    return (
                        <div className={styles.actionColumnWrapper}>
-                           <div className={styles.actionColumnIconWrap}>
-                               <EditFilled className={styles.actionColumnIcon}/>
-                           </div>
-
                             <div className={styles.actionColumnIconWrap}>
-                                <DeleteFilled className={styles.actionColumnIcon}/>
+                                <DeleteFilled
+                                    className={styles.actionColumnIcon}
+                                    onClick={() => setIsDeleteModalKeyId(record.key)}
+                                />
                             </div>
                        </div>
                    )

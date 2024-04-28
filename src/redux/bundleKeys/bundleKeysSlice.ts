@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {
-    IBundleKeysState, IAxiosFetchWithTokenRefresh, IBundleKy, IBundleInfoResponse
+    IBundleKeysState, IAxiosFetchWithTokenRefresh, IBundleKy, IBundleInfoResponse, IDefaultResponse
 } from "../../types/interfaces";
 import {Dispatch} from "react";
-import {authErrorHandler} from "../../utils";
+import {authErrorHandler, authSuccessNotification} from "../../utils";
 import {axiosFetchWithTokenRefresh} from "../../services/axiosFetch";
 
 const initialState:IBundleKeysState = {
@@ -111,4 +111,41 @@ export const getBundleInfo=( bundleId:string):any => async (dispatch: Dispatch<a
     }
 }
 
+export const deleteTranslationKey=( bundleId:string, translationKeyId:string):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setProcessKeyLoading(true))
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "delete",
+            url: `/bundles/${bundleId}/translationKeys/${translationKeyId}`,
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<IDefaultResponse>(config);
+
+        const keysInfo = getState().keys.keysInfo
+        const totalKeysForBundle = keysInfo[bundleId]
+
+        dispatch(setKeysInfo({
+            ...keysInfo,
+            [bundleId]: {totalCount: totalKeysForBundle.totalCount - 1}
+        }))
+
+       const keys: {[key:string]: IBundleKy[]} = getState().keys.keys
+
+       const keysForCurrentBundle = keys[bundleId];
+
+       const filteredKeys =  keysForCurrentBundle.filter(key => key._id !== translationKeyId)
+
+        dispatch(setKeys({
+            ...keys,
+            [bundleId]: filteredKeys
+        }))
+
+        authSuccessNotification(result.message);
+        dispatch(setProcessKeyLoading(false))
+    }catch (error) {
+        console.log("Error in deleteTranslationKey",error)
+        dispatch(setProcessKeyLoading(false))
+        return authErrorHandler(error);
+    }
+}
 export default bundleKeysSlice.reducer;

@@ -20,6 +20,18 @@ export interface IDefaultResponse{
     message: string
 }
 
+export interface IAddLanguageToBundleBody{
+    userId: string
+    languageName:string
+    language: string
+    needToTranslate: boolean
+}
+export interface IAddLanguageToBundleResponse extends IDefaultResponse{
+    info: {
+        language: string
+    }
+}
+
 export interface IBundleCreateResponse extends IDefaultResponse{
     bundle: IBundle
 }
@@ -157,10 +169,15 @@ export interface IBundlesState {
    creatingLoading: boolean
    bundleUsersLoading: boolean
    updateBundleLoading: boolean
+   creatingNewLanguageLoading: boolean
    deleteLoading: boolean
+   currentLanguageForBundle: {
+       [key:string]: string
+   }
    currentBundleUsers: IUser[]
    loading: boolean
    isWarningAlert: boolean
+   deletingLanguage: boolean
 }
 
 export interface IBundle {

@@ -2,6 +2,7 @@ import {authErrorHandler, authSuccessNotification} from "../../utils";
 import {Dispatch} from "react";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {
+    IAddLanguageToBundleBody, IAddLanguageToBundleResponse,
     IAxiosFetchWithTokenRefresh, IBundle, IBundleCreateBody, IBundleCreateResponse,
     IBundlesState, IBundleUsersResponse, IDefaultResponse, IDeleteUserFromBundleResponse, IUpdateBundleResponse, IUser,
 } from "../../types/interfaces";
@@ -19,7 +20,10 @@ const initialState:IBundlesState = {
     updateBundleLoading:false,
     deleteLoading: false,
     currentBundle: null,
-    isWarningAlert: false
+    currentLanguageForBundle: {},
+    creatingNewLanguageLoading: false,
+    isWarningAlert: false,
+    deletingLanguage: false
 };
 
 export const bundleSlice = createSlice({
@@ -37,6 +41,9 @@ export const bundleSlice = createSlice({
         },
         setLoading: (state, action: PayloadAction<boolean>) => {
             state.loading = action.payload;
+        },
+        setDeletingLanguage: (state, action: PayloadAction<boolean>) => {
+            state.deletingLanguage = action.payload;
         },
         setModalCreate: (state, action: PayloadAction<boolean>) => {
             state.modalCreate = action.payload;
@@ -56,7 +63,12 @@ export const bundleSlice = createSlice({
         setWarningAlert: (state, action: PayloadAction<boolean>) => {
             state.isWarningAlert = action.payload;
         },
-
+        setCreatingNewLanguageLoading: (state, action: PayloadAction<boolean>) => {
+            state.creatingNewLanguageLoading = action.payload;
+        },
+        setCurrentLanguageForBundle: (state, action: PayloadAction<IBundlesState["currentLanguageForBundle"]>) => {
+            state.currentLanguageForBundle = action.payload;
+        },
     },
 });
 
@@ -70,7 +82,10 @@ export const {
     setBundleUsersLoading,
     setModalCreate,
     setCreatingLoading,
-    setWarningAlert
+    setWarningAlert,
+    setCreatingNewLanguageLoading,
+    setCurrentLanguageForBundle,
+    setDeletingLanguage
 } = bundleSlice.actions;
 
 export const getBundles = ():any => async (dispatch: Dispatch<any>) => {
@@ -84,6 +99,14 @@ export const getBundles = ():any => async (dispatch: Dispatch<any>) => {
         const result = await  axiosFetchWithTokenRefresh<IBundle[]>(config);
 
         await dispatch(setCurrentBundle(result[0]))
+
+        const bundlesInitialLanguages: {[key: string]: string} = result.reduce((acc: {[key: string]: string}, bundle) => {
+            acc[bundle._id] = bundle.translatedLanguages[0];
+            return acc;
+        }, {});
+
+
+        await dispatch(setCurrentLanguageForBundle(bundlesInitialLanguages))
         await dispatch(setAvailableBundles(result))
         dispatch(setLoading(false))
 
@@ -108,7 +131,12 @@ export const createBundle = (payload: IBundleCreateBody, callback: () => void):a
         const result = await  axiosFetchWithTokenRefresh<IBundleCreateResponse>(config);
 
         const availableBundles:IBundle[] =  getState().bundles.availableBundles;
+        const currentLanguageForBundle = getState().bundles.currentLanguageForBundle;
 
+        await dispatch(setCurrentLanguageForBundle({
+            ...currentLanguageForBundle,
+            [result.bundle._id]: result.bundle.translatedLanguages[0]
+        }))
 
         await dispatch(setCurrentBundle(result.bundle))
         await dispatch(setAvailableBundles([ result.bundle, ...availableBundles]))
@@ -252,6 +280,76 @@ export const checkBundleAlert = (bundleId:string,language:string):any => async (
         dispatch(  setWarningAlert(result.showAlert))
 
     } catch (error) {
+        return authErrorHandler(error);
+    }
+}
+
+export const deleteLanguageFromBundle = (bundleId:string,language:string):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setDeletingLanguage(true))
+
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "delete",
+            url: `/bundles/${bundleId}/${language}`,
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<IDefaultResponse>(config);
+
+        const currentBundle:IBundle =  getState().bundles.currentBundle;
+        const currentLanguageForBundle = getState().bundles.currentLanguageForBundle;
+
+        const filteredLanguages = currentBundle.translatedLanguages.filter(availableLanguage => availableLanguage !== language)
+
+        dispatch(setCurrentBundle({
+            ...currentBundle,
+            translatedLanguages: filteredLanguages
+        }))
+
+        dispatch(setCurrentLanguageForBundle({
+            ...currentLanguageForBundle,
+            [currentBundle._id]: filteredLanguages[0]
+        }))
+
+        authSuccessNotification(result.message);
+
+        dispatch(setDeletingLanguage(false))
+    } catch (error) {
+        dispatch(setDeletingLanguage(false))
+        return authErrorHandler(error);
+    }
+}
+
+export const addNewLanguageToBundle = (bundleId:string,body:IAddLanguageToBundleBody):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setCreatingNewLanguageLoading(true))
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "POST",
+            url: `/bundles/${bundleId}/addLanguage`,
+            data: {
+                ...body
+            }
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<IAddLanguageToBundleResponse>(config);
+
+        const currentBundle:IBundle =  getState().bundles.currentBundle;
+        const currentLanguagesForBundle: {[key:string]: string} =  getState().bundles.currentLanguageForBundle;
+
+        dispatch(setCurrentBundle({
+            ...currentBundle,
+            translatedLanguages: [...currentBundle.translatedLanguages, result.info.language]
+        }))
+
+        dispatch(setCurrentLanguageForBundle({
+            ...currentLanguagesForBundle,
+            [bundleId]: result.info.language
+        }))
+
+        authSuccessNotification(result.message);
+
+        dispatch(setCreatingNewLanguageLoading(false))
+    } catch (error) {
+        dispatch(setCreatingNewLanguageLoading(false))
         return authErrorHandler(error);
     }
 }

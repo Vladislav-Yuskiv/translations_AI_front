@@ -17,8 +17,13 @@ const getCurrentBundleUsers = (state:IRootState) => state.bundles.currentBundleU
 const getModalCreate = (state:IRootState) => state.bundles.modalCreate;
 
 const getCreatingLoading = (state:IRootState) => state.bundles.creatingLoading;
-
 const getBundleAlert = (state:IRootState) => state.bundles.isWarningAlert;
+
+const getCreatingNewLanguageLoading = (state:IRootState) => state.bundles.creatingNewLanguageLoading;
+
+const getCurrentLanguageForBundles = (state:IRootState) => state.bundles.currentLanguageForBundle;
+
+const getDeletingLanguage = (state:IRootState) => state.bundles.deletingLanguage;
 
 const bundlesSelectors = {
     getAvailable,
@@ -30,7 +35,10 @@ const bundlesSelectors = {
     getCurrentBundleUsers,
     getModalCreate,
     getCreatingLoading,
-    getBundleAlert
+    getBundleAlert,
+    getCreatingNewLanguageLoading,
+    getCurrentLanguageForBundles,
+    getDeletingLanguage
 };
 
 export default bundlesSelectors;

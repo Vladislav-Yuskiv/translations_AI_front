@@ -3,10 +3,19 @@ import styles from "./AreYouSureModal.module.css"
 interface IAreYouSureModalProps{
     title: string
     isOpen:boolean
+    description?: string
+    confirmLoading?: boolean
     onClose: () => void
     onSubmit: () => void
 }
-export default function AreYouSureModal({isOpen,title,onSubmit,onClose}:IAreYouSureModalProps){
+export default function AreYouSureModal({
+                                            isOpen,
+                                            title,
+                                            onSubmit,
+                                            onClose,
+                                            description="",
+                                            confirmLoading = false
+                                        }:IAreYouSureModalProps){
 
     return(
         <Modal
@@ -17,6 +26,7 @@ export default function AreYouSureModal({isOpen,title,onSubmit,onClose}:IAreYouS
             cancelButtonProps={{
                 className: styles.cancelBtn
             }}
+            confirmLoading={confirmLoading}
             title={title}
             closeIcon={null}
             onOk={onSubmit}
@@ -25,7 +35,9 @@ export default function AreYouSureModal({isOpen,title,onSubmit,onClose}:IAreYouS
                 width: 200,
                 height: 150
             }}
-        />
+        >
+            <p>{description}</p>
+        </Modal>
 
     )
 }
