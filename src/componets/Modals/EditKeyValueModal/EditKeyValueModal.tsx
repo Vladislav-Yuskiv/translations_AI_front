@@ -7,16 +7,27 @@ import AntdInput from "../../AntdInput";
 import ReactCountryFlag from "react-country-flag";
 import * as locale from "locale-codes";
 import AntdButton from "../../AntdButton";
+import {useDispatch, useSelector} from "react-redux";
+import valuesSelectors from "../../../redux/bundleKeysValues/bundleKeysValuesSelectors";
+import {updateTranslationKeyValue} from "../../../redux/bundleKeysValues/bundleKeysValuesSlice";
+import userSelectors from "../../../redux/user/userSelectors";
 
 interface IEditKeyValueModalProps{
+    bundleId:string
     config:IModalKeyValueEditConfig
     onClose: () => void
 }
 export default function EditKeyValueModal({
                                               config,
-                                              onClose
+                                              onClose,
+                                              bundleId
 
 }:IEditKeyValueModalProps){
+
+    const keyValueProcessLoading = useSelector(valuesSelectors.getKeyValueProcessing)
+    const userId = useSelector(userSelectors.getUserId)
+
+    const dispatch = useDispatch();
 
     const [value, setValue] = useState("");
     const [generatedAI, setGeneratedAI] = useState(false);
@@ -58,9 +69,17 @@ export default function EditKeyValueModal({
                     <div className={styles.footerWrapper}>
                         <Button
                             className={styles.footerBtn}
-                            loading={false}
-                            disabled={false}
+                            loading={keyValueProcessLoading}
+                            disabled={keyValueProcessLoading}
                             onClick={async () => {
+                                dispatch(updateTranslationKeyValue(
+                                    bundleId,
+                                    config.valueInfo.valueId,
+                                    {
+                                        value:value,
+                                        updatedUser:userId
+                                    }
+                                ))
                                 onClose()
                                 clearState()
                             }}

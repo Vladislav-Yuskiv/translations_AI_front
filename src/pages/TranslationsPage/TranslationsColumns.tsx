@@ -4,6 +4,7 @@ import {DeleteFilled, WarningFilled,EditFilled } from "@ant-design/icons";
 import * as locale from 'locale-codes'
 import ReactCountryFlag from "react-country-flag";
 import {IModalKeyEditConfig, IModalKeyValueEditConfig} from "../../types/interfaces";
+import {truncate} from "../../utils/help";
 
 interface ITranslationsColumnsProps{
     availableLanguages: string[]
@@ -33,7 +34,7 @@ export default function TranslationsColumns({
                render: (value, record) => {
                    return(
                        <div className={styles.titleWrapper}>
-                           <p>{record.name}</p>
+                           <p>{truncate(record.name,35,20)}</p>
                            <EditFilled
                                className={styles.actionColumnIcon}
                                onClick={() => setEditKeyModalConfig({
@@ -72,6 +73,9 @@ export default function TranslationsColumns({
                },
                dataIndex: 'description',
                key: 'key',
+               render: value => {
+                   return truncate(value,60,30)
+               }
            },
            {
                title: () => {
@@ -116,7 +120,7 @@ export default function TranslationsColumns({
                               {
                                   value.trim() === ""
                                       ?   <WarningFilled style={{color:"red"}} />
-                                      :   <p>{value}</p>
+                                      :   <p>{truncate(value,35,20)}</p>
                               }
                               <EditFilled
                                   className={styles.actionColumnIcon}

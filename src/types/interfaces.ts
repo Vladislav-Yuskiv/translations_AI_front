@@ -20,6 +20,14 @@ export interface IDefaultResponse{
     message: string
 }
 
+export interface IUpdateKeyResponse extends IDefaultResponse{
+    translationKey: IBundleKy
+}
+
+export interface IUpdateKeyValueResponse extends IDefaultResponse{
+    translationKeyValue: IBundleKeyValue
+}
+
 export interface IAddLanguageToBundleBody{
     userId: string
     languageName:string
@@ -71,6 +79,7 @@ export interface IBundleCreateBody{
     name:string,
     description: string
     category: string
+    createKeys: boolean
 }
 export interface IChangePasswordBody{
     email:string,

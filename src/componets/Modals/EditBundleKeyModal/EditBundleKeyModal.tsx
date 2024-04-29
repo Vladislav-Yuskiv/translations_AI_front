@@ -4,16 +4,27 @@ import {CloseOutlined} from "@ant-design/icons";
 import KeyForm from "../../Forms/KeyForm";
 import {useEffect, useState} from "react";
 import {IModalKeyEditConfig} from "../../../types/interfaces";
+import {useDispatch, useSelector} from "react-redux";
+import keysSelectors from "../../../redux/bundleKeys/bundleKeysSelectors";
+import {updateTranslationKey} from "../../../redux/bundleKeys/bundleKeysSlice";
+import userSelectors from "../../../redux/user/userSelectors";
 
 
 interface IEditBundleKeyModalProps{
+    bundleId: string
     config: IModalKeyEditConfig
     onClose: () => void
 }
 export default function EditBundleKeyModal({
+    bundleId,
     config,
     onClose
 }:IEditBundleKeyModalProps){
+
+    const processLoading = useSelector(keysSelectors.getProcessKeyLoading)
+    const userId = useSelector(userSelectors.getUserId)
+
+    const dispatch = useDispatch();
 
     const [keyName,setKeyName] = useState("");
     const [keyContext,setKeyContext] = useState("");
@@ -41,10 +52,18 @@ export default function EditBundleKeyModal({
                     <div className={styles.footerWrapper}>
                         <Button
                             className={styles.footerBtn}
-                            loading={false}
-                            disabled={keyName.trim() === ""}
+                            loading={processLoading}
+                            disabled={keyName.trim() === "" || processLoading}
                             onClick={async () => {
-
+                                dispatch(updateTranslationKey(
+                                    bundleId,
+                                    config.keyInfo.keyId,
+                                    {
+                                        name: keyName,
+                                        description: keyContext,
+                                        updatedBy:userId
+                                    }
+                                ))
                                 onClose()
                                 clearState()
                             }}

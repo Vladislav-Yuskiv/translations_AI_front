@@ -51,3 +51,26 @@
     border-color: var(--main-background-color) !important;
     opacity: 0.8;
 }
+.langWrap{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: var(--white-color);
+    box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.defaultLanguage{
+    display: flex;
+    align-items: center;
+}
+.defaultLanguageWrap{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}

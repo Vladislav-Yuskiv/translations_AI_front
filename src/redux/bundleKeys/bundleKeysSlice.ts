@@ -1,6 +1,12 @@
 import { createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {
-    IBundleKeysState, IAxiosFetchWithTokenRefresh, IBundleKy, IBundleInfoResponse, IDefaultResponse
+    IBundleKeysState,
+    IAxiosFetchWithTokenRefresh,
+    IBundleKy,
+    IBundleInfoResponse,
+    IDefaultResponse,
+    IUpdateKeyResponse,
+    IBundleKeyValue
 } from "../../types/interfaces";
 import {Dispatch} from "react";
 import {authErrorHandler, authSuccessNotification} from "../../utils";
@@ -148,4 +154,46 @@ export const deleteTranslationKey=( bundleId:string, translationKeyId:string):an
         return authErrorHandler(error);
     }
 }
+
+export const updateTranslationKey=( bundleId:string, translationKeyId:string , payload: Partial<IBundleKy>):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setProcessKeyLoading(true))
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "put",
+            url: `/bundles/${bundleId}/translationKeys/${translationKeyId}`,
+            data: {
+                payload: {
+                    ...payload
+                }
+            }
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<IUpdateKeyResponse>(config)
+
+        const keys: {[key:string]: IBundleKy[]} = getState().keys.keys
+
+        const keysForCurrentBundle = keys[bundleId];
+
+        const filteredKeys =  keysForCurrentBundle.map(key => {
+            if(key._id == result.translationKey._id){
+                return result.translationKey
+            }else{
+                return key
+            }
+        })
+
+        dispatch(setKeys({
+            ...keys,
+            [bundleId]: filteredKeys
+        }))
+
+        authSuccessNotification(result.message);
+        dispatch(setProcessKeyLoading(false))
+    }catch (error) {
+        console.log("Error in deleteTranslationKey",error)
+        dispatch(setProcessKeyLoading(false))
+        return authErrorHandler(error);
+    }
+}
+
 export default bundleKeysSlice.reducer;

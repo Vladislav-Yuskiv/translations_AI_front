@@ -1,3 +1,18 @@
 .valueInput{
     margin: 10px 0;
+    position: relative;
+}
+.warnWrapper{
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+.warnText{
+    color: red;
+    margin-left: 10px;
+}
+.spinWrap{
+    position: absolute;
+    top: 52px;
+    right: 15px;
 }

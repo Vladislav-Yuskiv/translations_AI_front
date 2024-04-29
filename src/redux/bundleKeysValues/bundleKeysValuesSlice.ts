@@ -2,11 +2,12 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {
     IAxiosFetchWithTokenRefresh,
     IBundleKeyValue,
-    IBundlesKeysValuesState
+    IBundlesKeysValuesState,
+    IUpdateKeyValueResponse
 } from "../../types/interfaces";
 import {Dispatch} from "react";
 import {axiosFetchWithTokenRefresh} from "../../services/axiosFetch";
-import {authErrorHandler} from "../../utils";
+import {authErrorHandler, authSuccessNotification} from "../../utils";
 
 const initialState:IBundlesKeysValuesState = {
     keysValues: [],
@@ -60,5 +61,40 @@ export const getValuesByKeyIds = (bundleId:string,language:string,translationsKe
     }
 }
 
+export const updateTranslationKeyValue=( bundleId:string, translationValueId:string , payload: Partial<IBundleKeyValue>):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setKeyValueProcessing(true))
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "put",
+            url: `/bundles/${bundleId}/translationKeys/values/${translationValueId}`,
+            data: {
+                payload: {
+                    ...payload
+                }
+            }
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<IUpdateKeyValueResponse>(config)
+
+        const keysValues: IBundleKeyValue[] = getState().bundlesKeysValues.keysValues
+
+        const filteredKeysValues =  keysValues.map(keyValue => {
+            if(keyValue._id == result.translationKeyValue._id){
+                return result.translationKeyValue
+            }else{
+                return keyValue
+            }
+        })
+
+        dispatch(setKeysValues(filteredKeysValues))
+
+        authSuccessNotification(result.message);
+        dispatch(setKeyValueProcessing(false))
+    }catch (error) {
+        console.log("Error in deleteTranslationKey",error)
+        dispatch(setKeyValueProcessing(false))
+        return authErrorHandler(error);
+    }
+}
 
 export default bundleKeysValuesSlice.reducer

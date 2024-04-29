@@ -120,7 +120,7 @@ export default function CreateKeyModal({
                     onPress={generateValueByAI}
                 />
 
-                <div>
+                <div className={styles.wrapValueInputs}>
                     {translatedLanguages.map(language => {
                         return(
                             <LanguageValue
@@ -132,6 +132,7 @@ export default function CreateKeyModal({
                                     })
                                 }}
                                 languageTag={language}
+                                loading={generatingLoading}
                             />
                         )
                     })}

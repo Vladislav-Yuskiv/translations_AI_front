@@ -1,4 +1,4 @@
-import {Button, Modal, Select, SelectProps} from "antd";
+import {Button, Checkbox, Modal, Select, SelectProps, Tooltip} from "antd";
 import styles from "./CreateBundleModal.module.css";
 import {CloseOutlined} from "@ant-design/icons";
 import AntdInput from "../../AntdInput";
@@ -7,6 +7,7 @@ import TextArea from "antd/es/input/TextArea";
 import {useSelector} from "react-redux";
 import {bundlesSelectors} from "../../../redux/bundles";
 import {IBundleCreateBody} from "../../../types/interfaces";
+import ReactCountryFlag from "react-country-flag";
 
 const categoryOptions: SelectProps['options'] = [
     {label:"Business",value:"Business"},
@@ -26,8 +27,9 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
     const [bundleName, setBundleName] = useState( "");
     const [bundleDescription, setBundleDescription] = useState( "Bundle Description")
     const [bundleCategory, setBundleCategory] = useState("")
+    const [createDefaultKeys, setCreateDefaultKeys] = useState(true)
 
-    const creatingLoading = useSelector(bundlesSelectors.getCreatingLoading)  ;
+    const creatingLoading = useSelector(bundlesSelectors.getCreatingLoading);
 
     function clearState() {
         setBundleName("")
@@ -52,7 +54,8 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
                                await onSubmit({
                                     name:bundleName,
                                     description: bundleDescription,
-                                    category: bundleCategory
+                                    category: bundleCategory,
+                                    createKeys: createDefaultKeys
                                 })
                                 clearState()
                             }}
@@ -116,6 +119,32 @@ export default function CreateBundleModal({isOpen, onClose, onSubmit}:ICreateBun
                     }}
                     rightText={"Required"}
                 />
+
+                <div className={styles.defaultLanguage}>
+                    Default language for translation:
+
+                    <Tooltip title="You can not change default language in beta" placement="topLeft">
+                        <div className={styles.defaultLanguageWrap}>
+                            <div className={styles.langWrap}>
+                                <ReactCountryFlag
+                                    countryCode={"US"}
+                                    style={{fontSize: 24}}
+                                />
+                            </div>
+                            <p>English</p>
+                        </div>
+
+                    </Tooltip>
+                </div>
+
+                <Checkbox
+                    onChange={() => setCreateDefaultKeys(!createDefaultKeys)}
+                    checked={createDefaultKeys}
+                >
+                    Create default keys
+                </Checkbox>
+
+
             </div>
         </Modal>
     )

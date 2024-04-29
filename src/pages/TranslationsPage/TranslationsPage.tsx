@@ -4,7 +4,7 @@ import styles from "./TranslationsPage.module.css"
 import {HeaderPage} from "../../componets/StyledComponents";
 import {Button, Select, Table} from "antd";
 import TranslationsColumns from "./TranslationsColumns";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {bundleKeysSelectors} from "../../redux/bundleKeys";
 import bundlesSelectors from "../../redux/bundles/bundlesSelectors";
@@ -73,6 +73,7 @@ export default function TranslationsPage(){
         }
     });
 
+    const prevBundleKeysRef = useRef<any>(null);
 
     useEffect(() => {
         if(!currentBundle || !keys[currentBundle._id]) return
@@ -81,16 +82,36 @@ export default function TranslationsPage(){
 
         const dataTable = keysForBundle.map(bundleKey => {
 
-            return {
-                key: bundleKey._id,
-                name: bundleKey.name,
-                description: bundleKey.description,
-                createdAt: bundleKey.createdAt,
-                updatedAt: bundleKey.updatedAt,
-                updatedBy: bundleKey.updatedBy,
-                createdBy: bundleKey.createdBy,
-                keyValue: ""
+            //check if obj in table already exist
+            const existingKeyInTable = translationData.length > 0
+                ? translationData.find(data => data.key === bundleKey._id)
+                : null
+
+
+            if(existingKeyInTable){
+                return {
+                    ...existingKeyInTable,
+                    key: bundleKey._id,
+                    name: bundleKey.name,
+                    description: bundleKey.description,
+                    createdAt: bundleKey.createdAt,
+                    updatedAt: bundleKey.updatedAt,
+                    updatedBy: bundleKey.updatedBy,
+                    createdBy: bundleKey.createdBy,
+                }
+            }else{
+                return {
+                    key: bundleKey._id,
+                    name: bundleKey.name,
+                    description: bundleKey.description,
+                    createdAt: bundleKey.createdAt,
+                    updatedAt: bundleKey.updatedAt,
+                    updatedBy: bundleKey.updatedBy,
+                    createdBy: bundleKey.createdBy,
+                    keyValue: ""
+                }
             }
+
         })
 
         setTranslationData(dataTable)
@@ -112,6 +133,12 @@ export default function TranslationsPage(){
         if(!getBundleKeys) return;
 
         const keysIds = getBundleKeys.map(key => key._id)
+
+        const allKeysChanged = keysIds.every(id => !prevBundleKeysRef.current || !prevBundleKeysRef.current.includes(id));
+        if (!allKeysChanged) return;
+
+        // Update the reference to the current keys _ids
+        prevBundleKeysRef.current = keysIds;
 
         dispatch(getValuesByKeyIds(currentBundle._id, currentLanguagesForBundle[currentBundle._id], keysIds))
     }, [keys,currentBundle,currentLanguagesForBundle]);
@@ -383,6 +410,7 @@ export default function TranslationsPage(){
                     }}
                 />
                 <EditBundleKeyModal
+                    bundleId={currentBundle?._id!}
                     config={editKeyModalConfig}
                     onClose={() => {
                         setEditKeyModalConfig({
@@ -398,6 +426,7 @@ export default function TranslationsPage(){
 
                 <EditKeyValueModal
                     config={editKeyValueModalConfig}
+                    bundleId={currentBundle?._id!}
                     onClose={() => {
                         setEditKeyValueModalConfig({
                             isOpen: false,
