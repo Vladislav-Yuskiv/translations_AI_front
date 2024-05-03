@@ -65,6 +65,7 @@
   },
   "devDependencies": {
     "@types/country-flag-icons": "^1.2.2",
+    "@types/lodash": "^4.17.0",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "gh-pages": "^6.1.1",
     "pnotify": "^5.2.0"

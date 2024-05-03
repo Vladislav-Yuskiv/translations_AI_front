@@ -6,11 +6,12 @@ import {
     IBundleInfoResponse,
     IDefaultResponse,
     IUpdateKeyResponse,
-    IBundleKeyValue
+    IBundleKeyValue, ICreateKeyBody, ICreateKeyResponse
 } from "../../types/interfaces";
 import {Dispatch} from "react";
 import {authErrorHandler, authSuccessNotification} from "../../utils";
 import {axiosFetchWithTokenRefresh} from "../../services/axiosFetch";
+import {setKeysValues} from "../bundleKeysValues/bundleKeysValuesSlice";
 
 const initialState:IBundleKeysState = {
     keysLoading: false,
@@ -175,7 +176,7 @@ export const updateTranslationKey=( bundleId:string, translationKeyId:string , p
         const keysForCurrentBundle = keys[bundleId];
 
         const filteredKeys =  keysForCurrentBundle.map(key => {
-            if(key._id == result.translationKey._id){
+            if(key._id === result.translationKey._id){
                 return result.translationKey
             }else{
                 return key
@@ -186,6 +187,53 @@ export const updateTranslationKey=( bundleId:string, translationKeyId:string , p
             ...keys,
             [bundleId]: filteredKeys
         }))
+
+        authSuccessNotification(result.message);
+        dispatch(setProcessKeyLoading(false))
+    }catch (error) {
+        console.log("Error in deleteTranslationKey",error)
+        dispatch(setProcessKeyLoading(false))
+        return authErrorHandler(error);
+    }
+}
+
+export const createTranslationKey=( bundleId:string, payload: ICreateKeyBody):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setProcessKeyLoading(true))
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "post",
+            url: `/bundles/${bundleId}/translationKeys`,
+            data: {
+                ...payload
+            }
+        }
+
+
+        const result = await  axiosFetchWithTokenRefresh<ICreateKeyResponse>(config)
+
+        const keys: {[key:string]: IBundleKy[]} = getState().keys.keys
+
+        const keysForCurrentBundle = keys[bundleId];
+
+        const filteredKeys =  [result.translationKey, ...keysForCurrentBundle];
+
+        dispatch(setKeys({
+            ...keys,
+            [bundleId]: filteredKeys
+        }))
+
+        const keysValues: IBundleKeyValue[] = getState().bundlesKeysValues.keysValues
+
+        dispatch(setKeysValues([...keysValues,result.translationValue]))
+
+        const keysInfo = getState().keys.keysInfo
+        const totalKeysForBundle = keysInfo[bundleId]
+
+        dispatch(setKeysInfo({
+            ...keysInfo,
+            [bundleId]: {totalCount: totalKeysForBundle.totalCount + 1}
+        }))
+
 
         authSuccessNotification(result.message);
         dispatch(setProcessKeyLoading(false))

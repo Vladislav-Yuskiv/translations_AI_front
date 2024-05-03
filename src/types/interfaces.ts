@@ -99,6 +99,27 @@ export interface IUpdateUserBody{
     name: string
 }
 
+export interface ICreateKeyBody{
+    name: string
+    description:string
+    userId:string
+    currentSelectedLanguage: string
+    valuesWithLanguage: {
+        [key:string]: string
+    }
+}
+
+export interface ICreateKeyResponse extends IDefaultResponse{
+    translationValue: IBundleKeyValue
+    translationKey: IBundleKy
+}
+
+export interface IItemForDownload{
+    keyName: string
+    keyDescription: string
+    keyValue: string
+}
+
 export interface IAxiosFetchWithTokenRefresh{
     method: Method,
     url: string,
@@ -222,4 +243,22 @@ export interface IRootState{
     bundles: IBundlesState
     keys: IBundleKeysState
     bundlesKeysValues: IBundlesKeysValuesState
+}
+
+export interface ITableKeyItem{
+    key: string
+    name: string
+    description: string
+    createdAt: string
+    updatedAt: string
+    updatedBy: string
+    createdBy: string
+
+    keyValueId: string
+    keyValue: string
+    valueCreatedAt: string
+    valueUpdatedAt: string
+    valueAddedBy: string
+    valueUpdatedBy: string
+
 }

@@ -4,12 +4,12 @@ import styles from "./TranslationsPage.module.css"
 import {HeaderPage} from "../../componets/StyledComponents";
 import {Button, Select, Table} from "antd";
 import TranslationsColumns from "./TranslationsColumns";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {bundleKeysSelectors} from "../../redux/bundleKeys";
 import bundlesSelectors from "../../redux/bundles/bundlesSelectors";
 import {CheckOutlined, DownOutlined, UpOutlined,WarningFilled} from "@ant-design/icons";
-import {deleteTranslationKey, getKeysByBundleId} from "../../redux/bundleKeys/bundleKeysSlice";
+import {createTranslationKey, deleteTranslationKey, getKeysByBundleId} from "../../redux/bundleKeys/bundleKeysSlice";
 import Loader from "../../componets/Loader";
 import valuesSelectors from "../../redux/bundleKeysValues/bundleKeysValuesSelectors";
 import {getValuesByKeyIds} from "../../redux/bundleKeysValues/bundleKeysValuesSlice";
@@ -20,9 +20,18 @@ import {checkBundleAlert, deleteLanguageFromBundle, setCurrentLanguageForBundle}
 import AddLanguageModal from "../../componets/Modals/AddLanguageModal";
 import AreYouSureModal from "../../componets/Modals/AreYouSureModal";
 import EditBundleKeyModal from "../../componets/Modals/EditBundleKeyModal";
-import {IModalKeyEditConfig, IModalKeyValueEditConfig} from "../../types/interfaces";
+import {
+    IAxiosFetchWithTokenRefresh,
+    IModalKeyEditConfig,
+    IModalKeyValueEditConfig,
+    ITableKeyItem
+} from "../../types/interfaces";
 import EditKeyValueModal from "../../componets/Modals/EditKeyValueModal";
 import CreateKeyModal from "../../componets/Modals/CreateKeyModal";
+import DownloadModal from "../../componets/Modals/DownloadModal";
+import UploadModal from "../../componets/Modals/UploadModal";
+import {axiosFetchWithTokenRefresh} from "../../services/axiosFetch";
+import {errorNotification} from "../../utils/authErrorHandler";
 
 const { Search } = Input;
 
@@ -48,9 +57,14 @@ export default function TranslationsPage(){
     const [translationData, setTranslationData] = useState<any[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [addLanguageModal, setAddLanguageModal] = useState(false);
+    const [downloadModal, setDownloadModal] = useState(false);
+    const [uploadModal, setUploadModal] = useState(false);
     const [isModalKeyCreate, setIsModalKeyCreate] = useState(false);
     const [isDeleteModalKeyId, setIsDeleteModalKeyId] = useState("");
     const [isModalDeleteLanguage, setModalDeleteLanguage] = useState("");
+    const [searchValue, setSearchValue] = useState("");
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [isSearchData, setIsSearchData] = useState(false);
 
     const [editKeyModalConfig, setEditKeyModalConfig] = useState<IModalKeyEditConfig>({
         isOpen: false,
@@ -73,10 +87,8 @@ export default function TranslationsPage(){
         }
     });
 
-    const prevBundleKeysRef = useRef<any>(null);
-
     useEffect(() => {
-        if(!currentBundle || !keys[currentBundle._id]) return
+        if(!currentBundle || !keys[currentBundle._id] || isSearchData) return
 
         const keysForBundle = keys[currentBundle._id]
 
@@ -87,10 +99,30 @@ export default function TranslationsPage(){
                 ? translationData.find(data => data.key === bundleKey._id)
                 : null
 
+            const foundValue = keysValues.find(value => {
+                return (
+                    value?.translation_key === bundleKey._id
+                    &&  value?.language === currentLanguagesForBundle[currentBundle?._id!]
+                )
+            });
+
+            let valuesForKey = {}
+
+            if(foundValue){
+                valuesForKey = {
+                    keyValueId: foundValue._id,
+                    keyValue: foundValue.value,
+                    valueCreatedAt: foundValue.createdAt,
+                    valueUpdatedAt: foundValue.updatedAt,
+                    valueAddedBy: foundValue.addedUser,
+                    valueUpdatedBy: foundValue.updatedUser
+                }
+            }
 
             if(existingKeyInTable){
                 return {
                     ...existingKeyInTable,
+                    ...valuesForKey,
                     key: bundleKey._id,
                     name: bundleKey.name,
                     description: bundleKey.description,
@@ -108,15 +140,16 @@ export default function TranslationsPage(){
                     updatedAt: bundleKey.updatedAt,
                     updatedBy: bundleKey.updatedBy,
                     createdBy: bundleKey.createdBy,
-                    keyValue: ""
+                    keyValue: "",
+                    ...valuesForKey
                 }
             }
 
         })
 
-        setTranslationData(dataTable)
+        setTranslationData([...dataTable])
 
-    }, [keys,currentBundle]);
+    }, [keys,currentBundle,keysValues,isSearchData]);
 
     useEffect(() => {
         if(!currentBundle) return
@@ -134,46 +167,10 @@ export default function TranslationsPage(){
 
         const keysIds = getBundleKeys.map(key => key._id)
 
-        const allKeysChanged = keysIds.every(id => !prevBundleKeysRef.current || !prevBundleKeysRef.current.includes(id));
-        if (!allKeysChanged) return;
-
-        // Update the reference to the current keys _ids
-        prevBundleKeysRef.current = keysIds;
-
         dispatch(getValuesByKeyIds(currentBundle._id, currentLanguagesForBundle[currentBundle._id], keysIds))
-    }, [keys,currentBundle,currentLanguagesForBundle]);
 
-    useEffect(() => {
-        if(translationData.length <= 0) return
+    }, [pagination[currentBundle?._id!],currentBundle,currentLanguagesForBundle]);
 
-        const updatedTableData = translationData.map(tableData => {
-
-            const foundValue = keysValues.find(value => {
-                return (
-                    value.translation_key === tableData.key
-                    &&  value.language === currentLanguagesForBundle[currentBundle?._id!]
-                )
-            });
-
-            if(foundValue){
-                return {
-                    ...tableData,
-                    keyValueId: foundValue._id,
-                    keyValue: foundValue.value,
-                    valueCreatedAt: foundValue.createdAt,
-                    valueUpdatedAt: foundValue.updatedAt,
-                    valueAddedBy: foundValue.addedUser,
-                    valueUpdatedBy: foundValue.updatedUser
-                }
-            }else{
-                return tableData
-            }
-
-        })
-
-        setTranslationData(updatedTableData)
-
-    }, [keysValues]);
 
     useEffect(() => {
         if(!currentBundle) return
@@ -201,6 +198,37 @@ export default function TranslationsPage(){
         }))
     }
 
+    const fetchData = async (searchText:string) => {
+        try {
+            if(searchText.trim() === "") return
+            setSearchLoading(true)
+            const config: IAxiosFetchWithTokenRefresh = {
+                method: "get",
+                url: `/bundles/${currentBundle?._id!}/${currentLanguagesForBundle[currentBundle?._id!]}/search?value=${searchText}`,
+            }
+
+            const result = await axiosFetchWithTokenRefresh<ITableKeyItem[]>(config);
+            setTranslationData(result)
+            setIsSearchData(true)
+            setSearchLoading(false)
+        }catch (e) {
+            console.log("Error in searching",e)
+            errorNotification("Try again!")
+            if(isSearchData) setIsSearchData(false)
+            setSearchLoading(false)
+        }
+
+    }
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if(value.trim() === ""){
+            setSearchValue("")
+            setIsSearchData(false)
+            return
+        }
+        setSearchValue(value);
+    };
 
     return(
         <HeaderWithContent>
@@ -243,21 +271,25 @@ export default function TranslationsPage(){
                             <div className={styles.actionsContainer}>
                                     <Button
                                         className={styles.addKey}
-                                        onClick={() => setIsModalKeyCreate(true)}
+                                        onClick={() => {
+                                            if(!currentBundle) return
+
+                                            setIsModalKeyCreate(true)
+                                        }}
                                         size={"large"}
                                     >
                                         Create key
                                     </Button>
                                     <AntdButton
                                         className={styles.actionBtn}
-                                        btnTitle={"Download CSV"}
-                                        onPress={() => console.log("")}
+                                        btnTitle={"Download File"}
+                                        onPress={() => setDownloadModal(true)}
                                         size={"large"}
                                     />
                                     <AntdButton
-                                        btnTitle={"Upload CSV"}
+                                        btnTitle={"Upload File"}
                                         className={styles.actionBtn}
-                                        onPress={() => console.log("")}
+                                        onPress={() => setUploadModal(true)}
                                         size={"large"}
                                     />
                             </div>
@@ -267,6 +299,10 @@ export default function TranslationsPage(){
                                     placeholder="Search  by key name, key context or key value"
                                     allowClear
                                     size="large"
+                                    value={searchValue}
+                                    onChange={handleSearchChange}
+                                    onSearch={fetchData}
+                                    onPressEnter={(e:any) => fetchData(e.target.value)}
                                 />
                                 <div  className={styles.selectWrapper}>
                                     <p className={styles.selectedWrapperText}>Selected language:
@@ -310,7 +346,7 @@ export default function TranslationsPage(){
                             <Table
                                 bordered
                                 rootClassName={styles.rootTable}
-                                loading={keysLoading}
+                                loading={keysLoading || searchLoading}
                                 columns={TranslationsColumns({
                                     availableLanguages: currentBundle.translatedLanguages,
                                     selectedLanguage: currentLanguagesForBundle[currentBundle._id],
@@ -348,7 +384,7 @@ export default function TranslationsPage(){
                                         )
                                     }
                                 }}
-                                pagination={{
+                                pagination={!isSearchData ? {
                                     position: ['bottomRight'],
                                     total: keysInfo[currentBundle._id]?.totalCount || 0,
                                     pageSize: pagination[currentBundle._id]?.limit || 10,
@@ -373,7 +409,7 @@ export default function TranslationsPage(){
                                     },
                                     showTotal: (total, range) =>
                                         `${range[0]}-${range[1]} of ${total} results`,
-                                } }
+                                } : false}
                             />
                         </>
                     )
@@ -443,9 +479,30 @@ export default function TranslationsPage(){
                 />
 
                 <CreateKeyModal
+                    currentLanguage={currentLanguagesForBundle[currentBundle?._id!]}
                     isOpen={isModalKeyCreate}
+                    onCreate={async  (payload) => {
+                        await dispatch(createTranslationKey(
+                            currentBundle?._id!,
+                            payload
+                        ))
+                    } }
                     onClose={() => setIsModalKeyCreate(false)}
                     translatedLanguages={currentBundle?.translatedLanguages || []}
+                />
+
+                <DownloadModal
+                    isOpen={downloadModal}
+                    onClose={() => setDownloadModal(false)}
+                    languageTag={currentLanguagesForBundle[currentBundle?._id!]}
+                    name={currentBundle?.name || ""}
+                    bundleId={currentBundle?._id!}
+                />
+
+                <UploadModal
+                    isOpen={uploadModal}
+                    onClose={() => setUploadModal(false)}
+                    languageTag={currentLanguagesForBundle[currentBundle?._id!]}
                 />
 
             </div>

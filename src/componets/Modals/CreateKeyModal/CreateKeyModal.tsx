@@ -8,19 +8,27 @@ import AntdInput from "../../AntdInput";
 import TextArea from "antd/es/input/TextArea";
 import LanguageValue from "../../Forms/LanguageValue";
 import AntdButton from "../../AntdButton";
+import userSelectors from "../../../redux/user/userSelectors";
+import {ICreateKeyBody} from "../../../types/interfaces";
 
 interface ICreateKeyModalModal{
     isOpen: boolean
+    onCreate: (payload:ICreateKeyBody) => Promise<void>
+    currentLanguage:string
     onClose: () => void
     translatedLanguages: string[]
 }
 export default function CreateKeyModal({
     onClose,
     translatedLanguages,
+    onCreate,
+    currentLanguage,
     isOpen,
  }:ICreateKeyModalModal){
 
     const processLoading = useSelector(keysSelectors.getProcessKeyLoading)
+    const userId = useSelector(userSelectors.getUserId)
+
 
     const [keyName, setKeyName] = useState("");
     const [keyContext, setKeyContext] = useState("");
@@ -65,6 +73,14 @@ export default function CreateKeyModal({
                                 processLoading
                             }
                             onClick={async () => {
+                                await onCreate({
+                                    userId,
+                                    name: keyName,
+                                    description: keyContext,
+                                    valuesWithLanguage:valuesForLanguages,
+                                    currentSelectedLanguage: currentLanguage
+                                })
+                                onClose()
                                 clearState()
                             }}
                         >
@@ -124,6 +140,7 @@ export default function CreateKeyModal({
                     {translatedLanguages.map(language => {
                         return(
                             <LanguageValue
+                                key={language}
                                 value={valuesForLanguages[language]}
                                 changeValue={(value) => {
                                     setValuesForLanguages({
