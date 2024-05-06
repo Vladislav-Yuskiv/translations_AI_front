@@ -1,7 +1,7 @@
 import {Button, Modal} from "antd";
 import styles from "./CreateKeyModal.module.css"
 import {CloseOutlined} from "@ant-design/icons";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import keysSelectors from "../../../redux/bundleKeys/bundleKeysSelectors";
 import AntdInput from "../../AntdInput";
@@ -36,6 +36,18 @@ export default function CreateKeyModal({
 
     const [generatedAI, setGeneratedAI] = useState(false);
     const [generatingLoading, setGeneratingLoading] = useState(false);
+
+    useEffect(() => {
+        if(!isOpen) return
+
+        const emptyValues: { [key: string]: string } = translatedLanguages.reduce((acc:any, language) => {
+            acc[language] = "";
+            return acc;
+        }, {});
+
+        setValuesForLanguages(emptyValues)
+
+    }, [isOpen]);
 
     function clearState() {
         setKeyName("")
@@ -73,15 +85,20 @@ export default function CreateKeyModal({
                                 processLoading
                             }
                             onClick={async () => {
-                                await onCreate({
-                                    userId,
-                                    name: keyName,
-                                    description: keyContext,
-                                    valuesWithLanguage:valuesForLanguages,
-                                    currentSelectedLanguage: currentLanguage
-                                })
-                                onClose()
-                                clearState()
+                                try {
+                                    await onCreate({
+                                        userId,
+                                        name: keyName.trim(),
+                                        description: keyContext.trim(),
+                                        valuesWithLanguage:valuesForLanguages,
+                                        currentSelectedLanguage: currentLanguage
+                                    })
+                                    onClose()
+                                    clearState()
+                                }catch (e) {
+
+                                }
+
                             }}
                         >
                            Create new key

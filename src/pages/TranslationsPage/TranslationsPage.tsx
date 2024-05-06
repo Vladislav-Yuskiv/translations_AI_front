@@ -502,7 +502,9 @@ export default function TranslationsPage(){
                 <UploadModal
                     isOpen={uploadModal}
                     onClose={() => setUploadModal(false)}
-                    languageTag={currentLanguagesForBundle[currentBundle?._id!]}
+                    bundleId={currentBundle?._id!}
+                    languages={currentBundle?.translatedLanguages || []}
+                    currentLanguage={currentLanguagesForBundle[currentBundle?._id!]}
                 />
 
             </div>

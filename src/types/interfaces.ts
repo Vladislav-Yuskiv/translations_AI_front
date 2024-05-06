@@ -109,9 +109,22 @@ export interface ICreateKeyBody{
     }
 }
 
+export interface IUploadKeysBody{
+    keys: DataItem[]
+    languages: string[]
+    needTranslate: boolean
+    currentSelectedLanguage: string
+    userId: string
+}
+
 export interface ICreateKeyResponse extends IDefaultResponse{
     translationValue: IBundleKeyValue
     translationKey: IBundleKy
+}
+
+export interface IUploadKeysResponse extends IDefaultResponse{
+    keys: IBundleKy[],
+    values: IBundleKeyValue[]
 }
 
 export interface IItemForDownload{
@@ -157,7 +170,8 @@ export interface IBundleKeysState {
     }
     keys: {
         [key: string]: IBundleKy[]
-    }
+    },
+    uploading: boolean
 }
 
 export interface IBundlesKeysValuesState{
@@ -261,4 +275,10 @@ export interface ITableKeyItem{
     valueAddedBy: string
     valueUpdatedBy: string
 
+}
+
+export interface DataItem {
+    id: number
+    key: string;
+    context: string;
 }

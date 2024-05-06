@@ -10,7 +10,7 @@ enum ERROR_STATUS {
 
 const config = {
     animation: 'fade',
-    delay: 4000
+    delay: 3000
 };
 
 export function errorNotification(errorMessage:string) {
@@ -21,7 +21,7 @@ export function errorNotification(errorMessage:string) {
     });
 }
 
-export default function authErrorHandler(error:any) {
+export default function authErrorHandler(error:any, message?: string) {
     const errorStatus = error?.response?.status || "Unknown";
 
     let errorMessage = '';
@@ -44,5 +44,5 @@ export default function authErrorHandler(error:any) {
     }
 
 
-    return  errorNotification(errorMessage);
+    return  errorNotification(message || errorMessage);
 }

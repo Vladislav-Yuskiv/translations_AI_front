@@ -6,7 +6,7 @@ import {
     IBundleInfoResponse,
     IDefaultResponse,
     IUpdateKeyResponse,
-    IBundleKeyValue, ICreateKeyBody, ICreateKeyResponse
+    IBundleKeyValue, ICreateKeyBody, ICreateKeyResponse, IUploadKeysResponse, IUploadKeysBody
 } from "../../types/interfaces";
 import {Dispatch} from "react";
 import {authErrorHandler, authSuccessNotification} from "../../utils";
@@ -19,7 +19,8 @@ const initialState:IBundleKeysState = {
     processKeyLoading:false,
     keysInfo: {},
     keys: {},
-    pagination: {}
+    pagination: {},
+    uploading:false
 };
 
 export const bundleKeysSlice = createSlice({
@@ -44,6 +45,9 @@ export const bundleKeysSlice = createSlice({
         setProcessKeyLoading: (state, action: PayloadAction<boolean>) => {
             state.processKeyLoading = action.payload;
         },
+        setUploading: (state, action: PayloadAction<boolean>) => {
+            state.uploading = action.payload;
+        },
     },
 });
 
@@ -53,7 +57,8 @@ export const {
     setProcessKeyLoading,
     setKeysInfo,
     setPagination,
-    setKeysInfoLoading
+    setKeysInfoLoading,
+    setUploading
 } = bundleKeysSlice.actions;
 
 
@@ -240,7 +245,55 @@ export const createTranslationKey=( bundleId:string, payload: ICreateKeyBody):an
     }catch (error) {
         console.log("Error in deleteTranslationKey",error)
         dispatch(setProcessKeyLoading(false))
-        return authErrorHandler(error);
+        authErrorHandler(error,"A duplicate key was found or an error occurred while processing your request.");
+
+        throw error;
+    }
+}
+
+export const uploadTranslationKeys=( bundleId:string, payload: IUploadKeysBody):any => async (dispatch: Dispatch<any>,getState: any) => {
+    try {
+        dispatch(setUploading(true))
+        const config: IAxiosFetchWithTokenRefresh = {
+            method: "post",
+            url: `/bundles/${bundleId}/translationKeys/upload`,
+            data: {
+                ...payload
+            }
+        }
+
+        const result = await  axiosFetchWithTokenRefresh<IUploadKeysResponse>(config)
+
+        const keys: {[key:string]: IBundleKy[]} = getState().keys.keys
+
+        const keysForCurrentBundle = keys[bundleId];
+
+        const filteredKeys =  [...result.keys, ...keysForCurrentBundle];
+
+        dispatch(setKeys({
+            ...keys,
+            [bundleId]: filteredKeys
+        }))
+
+        const keysValues: IBundleKeyValue[] = getState().bundlesKeysValues.keysValues
+
+        dispatch(setKeysValues([...keysValues,...result.values]))
+
+        const keysInfo = getState().keys.keysInfo
+        const totalKeysForBundle = keysInfo[bundleId]
+
+        dispatch(setKeysInfo({
+            ...keysInfo,
+            [bundleId]: {totalCount: totalKeysForBundle.totalCount + result.keys.length}
+        }))
+
+        authSuccessNotification(result.message);
+        dispatch(setUploading(false))
+    }catch (error) {
+        console.log("Error in uploadTranslationKeys",error)
+        dispatch(setUploading(false))
+        authErrorHandler(error, "A duplicate key was found or an error occurred while processing your request.");
+        throw error;
     }
 }
 

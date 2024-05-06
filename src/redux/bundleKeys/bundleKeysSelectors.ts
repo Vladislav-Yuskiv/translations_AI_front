@@ -8,7 +8,7 @@ const getKeysInfo= (state:IRootState) => state.keys.keysInfo;
 const getKeysInfoLoading = (state:IRootState) => state.keys.keysInfoLoading;
 const getPagination= (state:IRootState) => state.keys.pagination;
 const getProcessKeyLoading = (state:IRootState) => state.keys.processKeyLoading;
-
+const getKeysUploading = (state:IRootState) => state.keys.uploading;
 
 const keysSelectors = {
     getKeysLoading,
@@ -16,7 +16,8 @@ const keysSelectors = {
     getAllKeys,
     getKeysInfo,
     getPagination,
-    getKeysInfoLoading
+    getKeysInfoLoading,
+    getKeysUploading
 };
 
 export default keysSelectors;
